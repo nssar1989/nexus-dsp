@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEXUS DSP — Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#020509;--bg1:#040b14;--bg2:#060e1a;--border:#0b1e2e;--cyan:#00e5ff;--green:#a8ff3e;--orange:#ff6b35;--yellow:#f5c518;--purple:#d67bff;--text:#a8c4d8;--text2:#6a8aa8;--text3:#2a4a60}
+body{font-family:'Courier New',monospace;background:var(--bg);color:var(--text);min-height:100vh}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#0f2030;border-radius:2px}
+
+/* NAV */
+nav{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;height:52px}
+.logo{font-size:15px;font-weight:800;color:#ddf0ff;letter-spacing:1px;margin-right:32px;display:flex;align-items:center;gap:8px}
+.logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--cyan),#0030dd);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px}
+.nav-link{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:0 14px;height:52px;display:flex;align-items:center;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
+.nav-link:hover{color:var(--text2)}
+.nav-link.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.bal{font-size:12px;color:var(--green);font-weight:700}
+.bal-lbl{font-size:8px;color:var(--text3);letter-spacing:2px}
+.btn{background:none;border:1px solid;padding:5px 12px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:9px;letter-spacing:2px;text-transform:uppercase;transition:all .2s}
+.btn-cyan{border-color:var(--cyan);color:var(--cyan)}.btn-cyan:hover{background:rgba(0,229,255,.08)}
+.btn-green{border-color:var(--green);color:var(--green)}.btn-green:hover{background:rgba(168,255,62,.08)}
+.btn-red{border-color:#ff5050;color:#ff5050}.btn-red:hover{background:rgba(255,80,80,.08)}
+.btn-sm{padding:3px 9px;font-size:8px}
+
+/* LAYOUT */
+#app{padding:18px 20px;max-height:calc(100vh - 52px);overflow-y:auto}
+.pnl{display:none}.pnl.on{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:700px){.grid4{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px}
+.card-head{padding:10px 14px;background:rgba(0,229,255,.03);border-bottom:1px solid var(--border);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.card-body{padding:14px}
+
+/* KPI */
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px}
+.kpi-val{font-size:24px;font-weight:700;margin-top:4px;line-height:1}
+.kpi-lbl{font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
+.kpi-sub{font-size:9px;color:var(--text3);margin-top:4px}
+
+/* TABLE */
+.table{width:100%;border-collapse:collapse}
+.table th{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);background:rgba(0,229,255,.03)}
+.table td{font-size:10px;padding:9px 12px;border-bottom:1px solid #060e18;color:var(--text)}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:rgba(0,229,255,.02)}
+
+/* BADGE */
+.badge{display:inline-block;font-size:8px;padding:2px 7px;border-radius:3px;letter-spacing:1px;text-transform:uppercase}
+.b-green{background:rgba(168,255,62,.12);color:var(--green)}
+.b-blue{background:rgba(0,229,255,.1);color:var(--cyan)}
+.b-orange{background:rgba(255,107,53,.12);color:var(--orange)}
+.b-yellow{background:rgba(245,197,24,.12);color:var(--yellow)}
+.b-gray{background:rgba(255,255,255,.05);color:var(--text3)}
+
+/* FORM */
+.form-group{margin-bottom:14px}
+.form-label{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;display:block;margin-bottom:5px}
+.form-input{background:var(--bg1);border:1px solid var(--border);color:var(--text);border-radius:4px;padding:7px 10px;font-family:inherit;font-size:11px;width:100%;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--cyan)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* PROGRESS */
+.prog{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:2px;transition:width .4s}
+
+/* SPARKLINE */
+.spark{display:flex;align-items:flex-end;gap:2px;height:32px;margin-top:6px}
+.spark-bar{flex:1;border-radius:1px;min-height:2px;transition:height .3s}
+
+/* BID STREAM */
+.bid-row{display:grid;grid-template-columns:60px 1fr 70px 70px 70px 60px;gap:6px;padding:6px 12px;border-bottom:1px solid #050c15;font-size:9.5px;align-items:center;animation:sl .3s ease}
+@keyframes sl{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.bid-head{font-size:8px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;background:rgba(0,229,255,.03)}
+
+/* AUTH */
+#auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000}
+.auth-box{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:32px;width:360px}
+.auth-logo{text-align:center;margin-bottom:24px}
+.auth-title{font-size:18px;font-weight:800;color:#ddf0ff;margin-bottom:4px}
+.auth-sub{font-size:9px;color:var(--text3);letter-spacing:3px}
+.auth-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:5px;overflow:hidden}
+.auth-tab{flex:1;background:none;border:none;padding:8px;font-family:inherit;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;color:var(--text3);transition:all .2s}
+.auth-tab.on{background:rgba(0,229,255,.1);color:var(--cyan)}
+.auth-err{background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);color:#ff8080;font-size:10px;padding:8px 10px;border-radius:4px;margin-bottom:12px;display:none}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div style="width:44px;height:44px;background:linear-gradient(135deg,#00e5ff,#0030dd);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px">⚡</div>
+      <div class="auth-title">NEXUS DSP</div>
+      <div class="auth-sub">Programmatic Platform</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab on" onclick="authTab('login',this)">Login</button>
+      <button class="auth-tab" onclick="authTab('register',this)">Register</button>
+    </div>
+    <div id="auth-err" class="auth-err"></div>
+    <div id="login-form">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="login-email" type="email" placeholder="you@company.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-pass" type="password" placeholder="••••••••"></div>
+      <button class="btn btn-cyan" style="width:100%;padding:10px;font-size:10px" onclick="doLogin()">SIGN IN →</button>
+      <div style="text-align:center;margin-top:10px;font-size:9px;color:var(--text3)">Demo: demo@nexusdsp.com / demo1234</div>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="reg-name" type="text" placeholder="Your name"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="reg-email" type="email" placeholder="you@company.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="reg-pass" type="password" placeholder="Min 8 characters"></div>
+      <button class="btn btn-green" style="width:100%;padding:10px;font-size:10px" onclick="doRegister()">CREATE ACCOUNT →</button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN NAV -->
+<nav>
+  <div class="logo"><div class="logo-icon">⚡</div>NEXUS DSP</div>
+  <button class="nav-link on" onclick="nav('dashboard',this)">📊 Dashboard</button>
+  <button class="nav-link" onclick="nav('campaigns',this)">📁 Campaigns</button>
+  <button class="nav-link" onclick="nav('live',this)">⚡ Live Bids</button>
+  <button class="nav-link" onclick="nav('reports',this)">📈 Reports</button>
+  <button class="nav-link" onclick="nav('creatives',this)">🖼 Creatives</button>
+  <button class="nav-link" onclick="nav('billing',this)">💳 Billing</button>
+  <div class="nav-right">
+    <div style="text-align:right"><div class="bal" id="nav-balance">$0.00</div><div class="bal-lbl">Balance</div></div>
+    <div style="font-size:9px;color:var(--text3)" id="nav-user">—</div>
+    <button class="btn btn-sm" style="border-color:var(--text3);color:var(--text3)" onclick="doLogout()">LOGOUT</button>
+  </div>
+</nav>
+
+<div id="app">
+
+<!-- ══ DASHBOARD ══ -->
+<div id="dashboard" class="pnl on">
+  <div class="grid4" style="margin-bottom:14px">
+    <div class="kpi" style="border-color:rgba(0,229,255,.18)">
+      <div class="kpi-lbl">Total Spend</div>
+      <div class="kpi-val" style="color:var(--cyan)" id="kpi-spend">$0.00</div>
+      <div class="kpi-sub" id="kpi-spend-sub">All campaigns</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(168,255,62,.18)">
+      <div class="kpi-lbl">Impressions</div>
+      <div class="kpi-val" style="color:var(--green)" id="kpi-imps">0</div>
+      <div class="kpi-sub" id="kpi-imps-sub">Lifetime</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(255,107,53,.18)">
+      <div class="kpi-lbl">Clicks</div>
+      <div class="kpi-val" style="color:var(--orange)" id="kpi-clicks">0</div>
+      <div class="kpi-sub" id="kpi-ctr">CTR: 0.00%</div>
+    </div>
+    <div class="kpi" style="border-color:rgba(245,197,24,.18)">
+      <div class="kpi-lbl">Conversions</div>
+      <div class="kpi-val" style="color:var(--yellow)" id="kpi-convs">0</div>
+      <div class="kpi-sub" id="kpi-cpa">CPA: $—</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">Active Campaigns <button class="btn btn-cyan btn-sm" onclick="nav('campaigns',document.querySelector('[onclick*=campaigns]'))">+ New Campaign</button></div>
+    <div class="card-body" style="padding:0">
+      <table class="table" id="dash-campaigns"><thead><tr><th>Name</th><th>Status</th><th>Spent / Budget</th><th>CPM Bid</th><th>Pacing</th></tr></thead><tbody id="dash-camp-body"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No campaigns yet</td></tr></tbody></table>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-head">Live Bid Activity</div>
+      <div id="dash-bids" style="max-height:180px;overflow-y:auto">
+        <div style="padding:20px;text-align:center;color:var(--text3);font-size:10px">Waiting for bid events...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head">Spend Trend (Simulated)</div>
+      <div class="card-body">
+        <div class="spark" id="spend-spark"></div>
+        <div style="font-size:9px;color:var(--text3);margin-top:8px">Last 14 days</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CAMPAIGNS ══ -->
+<div id="campaigns" class="pnl">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Your Campaigns</div>
+    <button class="btn btn-green" onclick="showNewCampaign()">+ CREATE CAMPAIGN</button>
+  </div>
+
+  <!-- New campaign form -->
+  <div id="new-camp-form" class="card" style="display:none">
+    <div class="card-head">New Campaign <button class="btn btn-sm" style="border-color:var(--text3);color:var(--text3)" onclick="document.getElementById('new-camp-form').style.display='none'">CANCEL</button></div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Campaign Name</label><input class="form-input" id="nc-name" placeholder="Summer Retargeting 2025"></div>
+        <div class="form-group"><label class="form-label">Total Budget ($)</label><input class="form-input" id="nc-budget" type="number" placeholder="500"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">CPM Bid ($)</label><input class="form-input" id="nc-cpm" type="number" step="0.01" placeholder="3.50"></div>
+        <div class="form-group"><label class="form-label">Daily Budget ($)</label><input class="form-input" id="nc-daily" type="number" placeholder="50"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Target Geos</label>
+          <select class="form-input" id="nc-geo" multiple style="height:80px">
+            <option value="US" selected>United States</option>
+            <option value="CA">Canada</option>
+            <option value="GB">United Kingdom</option>
+            <option value="AU">Australia</option>
+            <option value="DE">Germany</option>
+            <option value="FR">France</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Target Devices</label>
+          <select class="form-input" id="nc-device" multiple style="height:80px">
+            <option value="mobile" selected>Mobile</option>
+            <option value="desktop" selected>Desktop</option>
+            <option value="tablet">Tablet</option>
+            <option value="ctv">CTV</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">Frequency Cap (per user/day)</label><input class="form-input" id="nc-freq" type="number" value="5"></div>
+      <button class="btn btn-green" onclick="createCampaign()" style="padding:8px 20px">CREATE CAMPAIGN →</button>
+    </div>
+  </div>
+
+  <div class="card" style="padding:0">
+    <table class="table">
+      <thead><tr><th>Name</th><th>Status</th><th>Spent</th><th>Budget</th><th>CPM</th><th>Imps</th><th>CTR</th><th>Actions</th></tr></thead>
+      <tbody id="camp-table-body"><tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">No campaigns yet. Create your first one!</td></tr></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ══ LIVE BIDS ══ -->
+<div id="live" class="pnl">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Live Bid Stream</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span style="font-size:9px;color:var(--text3)" id="bid-count">0 bids captured</span>
+      <button class="btn btn-sm btn-cyan" onclick="clearBids()">CLEAR</button>
+    </div>
+  </div>
+  <div class="card" style="padding:0">
+    <div class="bid-row bid-head"><span>ID</span><span>Campaign</span><span>Exchange</span><span>Geo/Dev</span><span>CPM</span><span>Result</span></div>
+    <div id="bid-stream" style="max-height:500px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<!-- ══ REPORTS ══ -->
+<div id="reports" class="pnl">
+  <div class="grid4" style="margin-bottom:14px">
+    <div class="kpi"><div class="kpi-lbl">eCPM</div><div class="kpi-val" style="color:var(--cyan)" id="r-ecpm">$0.00</div></div>
+    <div class="kpi"><div class="kpi-lbl">eCPC</div><div class="kpi-val" style="color:var(--orange)" id="r-ecpc">$0.00</div></div>
+    <div class="kpi"><div class="kpi-lbl">eCPA</div><div class="kpi-val" style="color:var(--yellow)" id="r-ecpa">$0.00</div></div>
+    <div class="kpi"><div class="kpi-lbl">Win Rate</div><div class="kpi-val" style="color:var(--green)" id="r-winrate">0%</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head">Performance by Device</div>
+    <div class="card-body" id="r-device-breakdown">
+      <div style="color:var(--text3);font-size:10px">No data yet — data appears once campaigns start running.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head">Performance by Geo</div>
+    <div class="card-body" id="r-geo-breakdown">
+      <div style="color:var(--text3);font-size:10px">No data yet.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CREATIVES ══ -->
+<div id="creatives" class="pnl">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Creative Assets</div>
+    <button class="btn btn-cyan" onclick="document.getElementById('creative-upload').style.display='block'">+ UPLOAD CREATIVE</button>
+  </div>
+  <div id="creative-upload" class="card" style="display:none">
+    <div class="card-head">Upload Creative</div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="cr-name" placeholder="Banner 300x250"></div>
+        <div class="form-group"><label class="form-label">Type</label><select class="form-input" id="cr-type"><option value="image">Image</option><option value="html">HTML</option><option value="iframe">iFrame</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Image / CDN URL</label><input class="form-input" id="cr-url" placeholder="https://cdn.your-domain.com/banner.jpg"></div>
+      <div class="form-group"><label class="form-label">Click URL (destination)</label><input class="form-input" id="cr-click" placeholder="https://your-advertiser.com/landing-page"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Width (px)</label><input class="form-input" id="cr-w" type="number" value="300"></div>
+        <div class="form-group"><label class="form-label">Height (px)</label><input class="form-input" id="cr-h" type="number" value="250"></div>
+      </div>
+      <button class="btn btn-cyan" onclick="saveCreative()">SAVE CREATIVE</button>
+    </div>
+  </div>
+  <div class="card" style="padding:0">
+    <table class="table"><thead><tr><th>Name</th><th>Type</th><th>Size</th><th>Status</th><th>Click URL</th></tr></thead>
+    <tbody id="creatives-body"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No creatives yet. Upload your first banner ad.</td></tr></tbody></table>
+  </div>
+</div>
+
+<!-- ══ BILLING ══ -->
+<div id="billing" class="pnl">
+  <div class="grid3" style="margin-bottom:14px">
+    <div class="kpi" style="border-color:rgba(168,255,62,.2)"><div class="kpi-lbl">Current Balance</div><div class="kpi-val" style="color:var(--green)" id="bill-balance">$0.00</div><div class="kpi-sub">Available for campaigns</div></div>
+    <div class="kpi"><div class="kpi-lbl">Current Plan</div><div class="kpi-val" style="color:var(--cyan);font-size:18px;text-transform:uppercase" id="bill-plan">Free</div><div class="kpi-sub">Upgrade for more features</div></div>
+    <div class="kpi"><div class="kpi-lbl">Total Spent (lifetime)</div><div class="kpi-val" style="color:var(--orange)" id="bill-spent">$0.00</div><div class="kpi-sub">Across all campaigns</div></div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">Top Up Balance</div>
+    <div class="card-body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="btn btn-cyan" onclick="topUp(5000)">$50</button>
+        <button class="btn btn-cyan" onclick="topUp(10000)">$100</button>
+        <button class="btn btn-cyan" onclick="topUp(25000)">$250</button>
+        <button class="btn btn-cyan" onclick="topUp(50000)">$500</button>
+        <button class="btn btn-cyan" onclick="topUp(100000)">$1,000</button>
+      </div>
+      <div style="font-size:9px;color:var(--text3);line-height:1.8">
+        Payments processed securely via Stripe. Funds added instantly to your balance.<br>
+        Minimum top-up: $10. Balance is used for campaign ad spend.
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head">Subscription Plans</div>
+    <div class="card-body">
+      <div class="grid3">
+        <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">Starter</div>
+          <div style="font-size:22px;font-weight:800;color:#ddf0ff;margin-bottom:4px">$799<span style="font-size:10px;color:var(--text3)">/mo</span></div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:1.8">Up to $5k/mo ad spend<br>8 SSP connections<br>AI bidding & optimization<br>Weekly reports</div>
+          <button class="btn btn-cyan" style="width:100%" onclick="subscribe('starter')">SELECT PLAN</button>
+        </div>
+        <div style="background:var(--bg1);border:1px solid rgba(168,255,62,.3);border-radius:8px;padding:16px;position:relative">
+          <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--green);color:#050f05;font-size:7px;padding:2px 8px;border-radius:10px;letter-spacing:2px;font-weight:700">POPULAR</div>
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">Growth</div>
+          <div style="font-size:22px;font-weight:800;color:#ddf0ff;margin-bottom:4px">$1,499<span style="font-size:10px;color:var(--text3)">/mo</span></div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:1.8">Up to $20k/mo ad spend<br>All Starter features<br>Advanced targeting<br>Daily reports + alerts</div>
+          <button class="btn btn-green" style="width:100%" onclick="subscribe('growth')">SELECT PLAN</button>
+        </div>
+        <div style="background:var(--bg1);border:1px solid rgba(214,123,255,.3);border-radius:8px;padding:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:8px">Scale</div>
+          <div style="font-size:22px;font-weight:800;color:#ddf0ff;margin-bottom:4px">$2,999<span style="font-size:10px;color:var(--text3)">/mo</span></div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:1.8">Up to $100k/mo ad spend<br>All Growth features<br>White-label option<br>Dedicated support</div>
+          <button class="btn" style="border-color:var(--purple);color:var(--purple);width:100%" onclick="subscribe('scale')">SELECT PLAN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #app -->
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────────
+var API = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:3001'
+  : 'https://your-api.railway.app'; // ← Replace with your deployed API URL
+
+var token = localStorage.getItem('nexus_token');
+var user  = null;
+var campaigns = [];
+var bids = [];
+var bidsWon = 0, bidsLost = 0;
+var simRunning = false;
+var simInterval = null;
+
+// ── STARTUP ───────────────────────────────────────────────────────────────────
+window.onload = function() {
+  if (token) { loadUser(); }
+  renderSparkline();
+};
+
+function loadUser() {
+  apiFetch('/api/auth/me').then(function(u) {
+    user = u;
+    if (u.error) { doLogout(); return; }
+    showApp();
+  }).catch(doLogout);
+}
+
+function showApp() {
+  document.getElementById('auth-screen').style.display = 'none';
+  document.getElementById('nav-user').textContent = user.email;
+  document.getElementById('nav-balance').textContent = '$' + parseFloat(user.balance).toFixed(2);
+  document.getElementById('bill-balance').textContent = '$' + parseFloat(user.balance).toFixed(2);
+  document.getElementById('bill-plan').textContent = user.plan;
+  loadCampaigns();
+  loadSummary();
+  startSimBids();
+}
+
+// ── AUTH ──────────────────────────────────────────────────────────────────────
+function authTab(tab, btn) {
+  document.querySelectorAll('.auth-tab').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+  document.getElementById('login-form').style.display    = tab === 'login' ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+  document.getElementById('auth-err').style.display = 'none';
+}
+
+function doLogin() {
+  var email = document.getElementById('login-email').value;
+  var pass  = document.getElementById('login-pass').value;
+
+  // Demo mode — works without backend
+  if (email === 'demo@nexusdsp.com' && pass === 'demo1234') {
+    token = 'demo-token';
+    user = { id:'demo', email:'demo@nexusdsp.com', name:'Demo User', plan:'growth', balance:'250.00', api_key:'nxs_demo' };
+    localStorage.setItem('nexus_token', token);
+    showApp();
+    return;
+  }
+
+  apiFetch('/api/auth/login', 'POST', { email, password: pass }).then(function(r) {
+    if (r.error) { showAuthErr(r.error); return; }
+    token = r.token;
+    user  = r.user;
+    localStorage.setItem('nexus_token', token);
+    showApp();
+  });
+}
+
+function doRegister() {
+  var name  = document.getElementById('reg-name').value;
+  var email = document.getElementById('reg-email').value;
+  var pass  = document.getElementById('reg-pass').value;
+  apiFetch('/api/auth/register', 'POST', { name, email, password: pass }).then(function(r) {
+    if (r.error) { showAuthErr(r.error); return; }
+    token = r.token;
+    user  = r.user;
+    localStorage.setItem('nexus_token', token);
+    showApp();
+  });
+}
+
+function doLogout() {
+  token = null; user = null; campaigns = [];
+  localStorage.removeItem('nexus_token');
+  document.getElementById('auth-screen').style.display = 'flex';
+  if (simInterval) clearInterval(simInterval);
+}
+
+function showAuthErr(msg) {
+  var el = document.getElementById('auth-err');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// ── API FETCH ─────────────────────────────────────────────────────────────────
+function apiFetch(path, method, body) {
+  if (method === void 0) method = 'GET';
+  var opts = { method: method, headers: { 'Content-Type': 'application/json' } };
+  if (token && token !== 'demo-token') opts.headers['Authorization'] = 'Bearer ' + token;
+  if (body) opts.body = JSON.stringify(body);
+  return fetch(API + path, opts).then(function(r){ return r.json(); }).catch(function(e){ return { error: e.message }; });
+}
+
+// ── CAMPAIGNS ─────────────────────────────────────────────────────────────────
+function loadCampaigns() {
+  if (token === 'demo-token') { campaigns = getDemoCampaigns(); renderCampaigns(); return; }
+  apiFetch('/api/campaigns').then(function(data) {
+    if (Array.isArray(data)) { campaigns = data; renderCampaigns(); }
+  });
+}
+
+function getDemoCampaigns() {
+  return [
+    { id:'c1', name:'Summer Retargeting', status:'active', budget:500, spent:187.42, cpm_bid:4.20, impressions:24500, clicks:312, conversions:18 },
+    { id:'c2', name:'Brand Awareness Q2', status:'active', budget:1200, spent:634.80, cpm_bid:2.80, impressions:56200, clicks:610, conversions:44 },
+    { id:'c3', name:'Prospecting Mobile', status:'paused', budget:750, spent:289.10, cpm_bid:5.60, impressions:18900, clicks:284, conversions:31 },
+  ];
+}
+
+function renderCampaigns() {
+  var body = document.getElementById('camp-table-body');
+  var dashBody = document.getElementById('dash-camp-body');
+  if (!campaigns.length) {
+    body.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">No campaigns yet</td></tr>';
+    dashBody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No campaigns</td></tr>';
+    return;
+  }
+  var html = '', dashHtml = '';
+  campaigns.forEach(function(c) {
+    var pct = Math.min(100, (c.spent / c.budget * 100)).toFixed(0);
+    var ctr = c.impressions > 0 ? (c.clicks / c.impressions * 100).toFixed(2) : '0.00';
+    var statusBadge = c.status === 'active' ? '<span class="badge b-green">active</span>' : c.status === 'paused' ? '<span class="badge b-yellow">paused</span>' : '<span class="badge b-gray">'+c.status+'</span>';
+    html += '<tr>'
+      + '<td style="color:#ddf0ff">'+c.name+'</td>'
+      + '<td>'+statusBadge+'</td>'
+      + '<td>$'+parseFloat(c.spent||0).toFixed(2)+'</td>'
+      + '<td>$'+parseFloat(c.budget).toFixed(2)+'</td>'
+      + '<td style="color:var(--cyan)">$'+parseFloat(c.cpm_bid).toFixed(2)+'</td>'
+      + '<td>'+(c.impressions||0).toLocaleString()+'</td>'
+      + '<td>'+ctr+'%</td>'
+      + '<td style="display:flex;gap:6px">'
+      + '<button class="btn btn-sm btn-cyan" onclick="toggleCampaign(\''+c.id+'\',\''+c.status+'\')">'+( c.status==='active'?'PAUSE':'RESUME')+'</button>'
+      + '</td></tr>';
+    dashHtml += '<tr>'
+      + '<td style="color:#ddf0ff">'+c.name+'</td>'
+      + '<td>'+statusBadge+'</td>'
+      + '<td><div>$'+parseFloat(c.spent||0).toFixed(2)+' / $'+parseFloat(c.budget).toFixed(2)+'</div>'
+      + '<div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:var(--cyan)"></div></div></td>'
+      + '<td style="color:var(--cyan)">$'+parseFloat(c.cpm_bid).toFixed(2)+'</td>'
+      + '<td><div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:var(--green)"></div></div></td>'
+      + '</tr>';
+  });
+  body.innerHTML = html;
+  dashBody.innerHTML = dashHtml;
+}
+
+function showNewCampaign() {
+  var f = document.getElementById('new-camp-form');
+  f.style.display = f.style.display === 'none' ? 'block' : 'none';
+}
+
+function createCampaign() {
+  var name   = document.getElementById('nc-name').value;
+  var budget = parseFloat(document.getElementById('nc-budget').value);
+  var cpm    = parseFloat(document.getElementById('nc-cpm').value);
+  var daily  = parseFloat(document.getElementById('nc-daily').value) || budget/30;
+  var freq   = parseInt(document.getElementById('nc-freq').value) || 5;
+  var geos   = Array.from(document.getElementById('nc-geo').selectedOptions).map(function(o){ return o.value; });
+  var devs   = Array.from(document.getElementById('nc-device').selectedOptions).map(function(o){ return o.value; });
+  if (!name || !budget || !cpm) { alert('Please fill in name, budget, and CPM bid'); return; }
+  if (token === 'demo-token') {
+    campaigns.push({ id:'c'+Date.now(), name:name, status:'active', budget:budget, spent:0, cpm_bid:cpm, daily_budget:daily, impressions:0, clicks:0, conversions:0, targeting:{geos:geos,devices:devs,freq_cap:freq} });
+    renderCampaigns();
+    document.getElementById('new-camp-form').style.display = 'none';
+    return;
+  }
+  apiFetch('/api/campaigns','POST',{ name:name, budget:budget, cpm_bid:cpm, daily_budget:daily, targeting:{geos:geos,devices:devs,freq_cap:freq} }).then(function(r) {
+    if (r.error) { alert(r.error); return; }
+    campaigns.push(r);
+    renderCampaigns();
+    document.getElementById('new-camp-form').style.display = 'none';
+  });
+}
+
+function toggleCampaign(id, status) {
+  var newStatus = status === 'active' ? 'paused' : 'active';
+  if (token === 'demo-token') {
+    campaigns = campaigns.map(function(c){ return c.id===id ? {...c, status:newStatus} : c; });
+    renderCampaigns(); return;
+  }
+  apiFetch('/api/campaigns/'+id,'PATCH',{ status:newStatus }).then(function(r) {
+    if (!r.error) { campaigns = campaigns.map(function(c){ return c.id===id ? r : c; }); renderCampaigns(); }
+  });
+}
+
+// ── SUMMARY ───────────────────────────────────────────────────────────────────
+function loadSummary() {
+  if (token === 'demo-token') {
+    updateKPIs({ spend:1111.32, impressions:99600, clicks:1206, conversions:93, bids_won:2890, bids_lost:4210 });
+    return;
+  }
+  apiFetch('/api/reports/summary').then(function(r) {
+    if (!r.error) updateKPIs(r);
+  });
+}
+
+function updateKPIs(d) {
+  document.getElementById('kpi-spend').textContent  = '$'+parseFloat(d.spend||0).toFixed(2);
+  document.getElementById('kpi-imps').textContent   = parseInt(d.impressions||0).toLocaleString();
+  document.getElementById('kpi-clicks').textContent = parseInt(d.clicks||0).toLocaleString();
+  document.getElementById('kpi-convs').textContent  = parseInt(d.conversions||0).toLocaleString();
+  var ctr = d.impressions > 0 ? (d.clicks/d.impressions*100).toFixed(2) : '0.00';
+  var cpa = d.conversions > 0 ? '$'+(d.spend/d.conversions).toFixed(2) : '$—';
+  document.getElementById('kpi-ctr').textContent = 'CTR: '+ctr+'%';
+  document.getElementById('kpi-cpa').textContent = 'CPA: '+cpa;
+  var total = parseInt(d.bids_won||0) + parseInt(d.bids_lost||0);
+  var wr = total > 0 ? (parseInt(d.bids_won||0)/total*100).toFixed(1) : '0';
+  document.getElementById('r-winrate').textContent = wr+'%';
+  var ecpm = d.impressions > 0 ? '$'+(d.spend/d.impressions*1000).toFixed(2) : '$0.00';
+  var ecpc = d.clicks > 0 ? '$'+(d.spend/d.clicks).toFixed(2) : '$0.00';
+  var ecpa = d.conversions > 0 ? '$'+(d.spend/d.conversions).toFixed(2) : '$0.00';
+  document.getElementById('r-ecpm').textContent = ecpm;
+  document.getElementById('r-ecpc').textContent = ecpc;
+  document.getElementById('r-ecpa').textContent = ecpa;
+}
+
+// ── SIMULATED BID STREAM ──────────────────────────────────────────────────────
+var EXCHANGES = ['PubMatic','Magnite','OpenX','Index','Xandr'];
+var GEOS      = ['US','US','US','CA','UK','AU','DE'];
+var DEVICES   = ['mobile','mobile','desktop','tablet','ctv'];
+var SIZES     = ['300x250','728x90','320x50','300x600','970x250'];
+var bidCount  = 0;
+
+function startSimBids() {
+  if (simInterval) return;
+  simInterval = setInterval(function() {
+    if (!campaigns.length) return;
+    var camp = campaigns[Math.floor(Math.random()*campaigns.length)];
+    if (!camp || camp.status !== 'active') return;
+    var won  = Math.random() > 0.4;
+    var cpm  = parseFloat(camp.cpm_bid || 3.5);
+    var bid  = { id:(++bidCount).toString().padStart(4,'0'), campaign:camp.name, exchange:EXCHANGES[Math.floor(Math.random()*EXCHANGES.length)], geo:GEOS[Math.floor(Math.random()*GEOS.length)], device:DEVICES[Math.floor(Math.random()*DEVICES.length)], size:SIZES[Math.floor(Math.random()*SIZES.length)], cpm:(cpm*(0.7+Math.random()*0.6)).toFixed(2), won:won, click:won&&Math.random()<0.025, conv:won&&Math.random()<0.008 };
+    if (won) bidsWon++; else bidsLost++;
+    addBidRow(bid);
+    if (won) updateCampSpend(camp.id, cpm/1000);
+    document.getElementById('bid-count').textContent = bidCount + ' bids captured';
+  }, 700 + Math.random()*500);
+}
+
+function addBidRow(b) {
+  var row = document.createElement('div');
+  row.className = 'bid-row';
+  var result = b.conv ? '<span class="badge b-yellow">CONV</span>' : b.click ? '<span class="badge b-cyan">CLICK</span>' : b.won ? '<span class="badge b-green">WON</span>' : '<span class="badge b-gray">LOST</span>';
+  row.innerHTML = '<span style="color:var(--text3);font-family:monospace">'+b.id+'</span><span style="color:#ddf0ff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+b.campaign+'</span><span style="color:var(--text2)">'+b.exchange+'</span><span style="color:var(--text3)">'+b.geo+' '+b.device.slice(0,4)+'</span><span style="color:var(--text)">'+(b.won?'$'+b.cpm:'—')+'</span>'+result;
+  var stream = document.getElementById('bid-stream');
+  stream.insertBefore(row, stream.firstChild);
+  while (stream.children.length > 80) stream.removeChild(stream.lastChild);
+  var dashBids = document.getElementById('dash-bids');
+  var dRow = row.cloneNode(true);
+  dashBids.insertBefore(dRow, dashBids.firstChild);
+  while (dashBids.children.length > 12) dashBids.removeChild(dashBids.lastChild);
+}
+
+function updateCampSpend(id, cost) {
+  campaigns = campaigns.map(function(c){
+    if (c.id !== id) return c;
+    var spent = (parseFloat(c.spent||0)+cost);
+    if (spent > parseFloat(c.budget)) c.status = 'ended';
+    return {...c, spent:spent, impressions:(parseInt(c.impressions||0)+1)};
+  });
+}
+
+function clearBids() {
+  document.getElementById('bid-stream').innerHTML = '';
+  bidCount = 0;
+  document.getElementById('bid-count').textContent = '0 bids captured';
+}
+
+// ── CREATIVES ─────────────────────────────────────────────────────────────────
+var creativesList = [];
+function saveCreative() {
+  var cr = { id:'cr'+Date.now(), name:document.getElementById('cr-name').value, type:document.getElementById('cr-type').value, image_url:document.getElementById('cr-url').value, click_url:document.getElementById('cr-click').value, w:document.getElementById('cr-w').value, h:document.getElementById('cr-h').value, status:'approved' };
+  if (!cr.name) { alert('Please enter a creative name'); return; }
+  creativesList.push(cr);
+  renderCreatives();
+  document.getElementById('creative-upload').style.display = 'none';
+}
+function renderCreatives() {
+  var body = document.getElementById('creatives-body');
+  if (!creativesList.length) { body.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No creatives yet</td></tr>'; return; }
+  body.innerHTML = creativesList.map(function(c){ return '<tr><td style="color:#ddf0ff">'+c.name+'</td><td><span class="badge b-blue">'+c.type+'</span></td><td>'+c.w+'x'+c.h+'</td><td><span class="badge b-green">'+c.status+'</span></td><td style="color:var(--text2);max-width:200px;overflow:hidden;text-overflow:ellipsis">'+c.click_url+'</td></tr>'; }).join('');
+}
+
+// ── BILLING ───────────────────────────────────────────────────────────────────
+function topUp(cents) {
+  if (token === 'demo-token') {
+    var amount = cents/100;
+    var bal = parseFloat(user.balance||0) + amount;
+    user.balance = bal.toFixed(2);
+    document.getElementById('nav-balance').textContent = '$'+user.balance;
+    document.getElementById('bill-balance').textContent = '$'+user.balance;
+    alert('Demo mode: $'+amount+' added to balance!');
+    return;
+  }
+  apiFetch('/api/billing/topup','POST',{ amount_cents:cents }).then(function(r) {
+    if (r.error) { alert(r.error); return; }
+    // In production: use Stripe.js to complete payment with r.clientSecret
+    alert('Stripe checkout: use clientSecret "'+r.clientSecret+'" with Stripe.js to complete payment');
+  });
+}
+
+function subscribe(plan) {
+  if (token === 'demo-token') { alert('Demo mode: In production, this opens Stripe checkout for the '+plan+' plan'); return; }
+  apiFetch('/api/billing/subscription','POST',{ plan:plan }).then(function(r) {
+    if (r.url) window.location.href = r.url;
+    else alert(r.error||'Error');
+  });
+}
+
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+function nav(id, btn) {
+  document.querySelectorAll('.pnl').forEach(function(p){ p.classList.remove('on'); });
+  document.querySelectorAll('.nav-link').forEach(function(b){ b.classList.remove('on'); });
+  document.getElementById(id).classList.add('on');
+  if (btn) btn.classList.add('on');
+}
+
+function renderSparkline() {
+  var data = [12,18,15,22,28,24,31,27,35,33,40,38,45,44];
+  var max = Math.max.apply(null,data);
+  var spark = document.getElementById('spend-spark');
+  spark.innerHTML = data.map(function(v){
+    var h = Math.round((v/max)*100);
+    return '<div class="spark-bar" style="height:'+h+'%;background:rgba(0,229,255,'+(0.3+v/max*0.7)+')"></div>';
+  }).join('');
+}
+</script>
+</body>
+</html>
