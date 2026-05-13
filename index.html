@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -7,11 +6,11 @@
 <title>NEXUS DSP — Dashboard</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#020509;--bg1:#040b14;--bg2:#060e1a;--border:#0b1e2e;--cyan:#00e5ff;--green:#a8ff3e;--orange:#ff6b35;--yellow:#f5c518;--purple:#d67bff;--red:#ff5050;--text:#a8c4d8;--text2:#6a8aa8;--text3:#2a4a60}
+:root{--bg:#f0f4f8;--bg1:#ffffff;--bg2:#f8fafc;--border:#e2e8f0;--cyan:#0066ff;--green:#00875a;--orange:#e85d04;--yellow:#d4a017;--purple:#7c3aed;--red:#dc2626;--text:#1e293b;--text2:#475569;--text3:#94a3b8}
 body{font-family:'Courier New',monospace;background:var(--bg);color:var(--text);min-height:100vh}
 ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#0f2030;border-radius:2px}
 nav{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;height:52px}
-.logo{font-size:15px;font-weight:800;color:#ddf0ff;letter-spacing:1px;margin-right:32px;display:flex;align-items:center;gap:8px}
+.logo{font-size:15px;font-weight:800;color:var(--text);letter-spacing:1px;margin-right:32px;display:flex;align-items:center;gap:8px}
 .logo-icon{width:30px;height:30px;background:linear-gradient(135deg,var(--cyan),#0030dd);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px}
 .nav-link{font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:0 14px;height:52px;display:flex;align-items:center;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit}
 .nav-link:hover{color:var(--text2)}.nav-link.on{color:var(--cyan);border-bottom-color:var(--cyan)}
@@ -32,16 +31,16 @@ nav{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;d
 .grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
 @media(max-width:700px){.grid4,.grid5{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:12px}
-.card-head{padding:10px 14px;background:rgba(0,229,255,.03);border-bottom:1px solid var(--border);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
-.card-head.admin{background:rgba(255,149,0,.05);border-bottom-color:rgba(255,149,0,.2)}
+.card-head{padding:10px 14px;background:#f1f5f9;border-bottom:1px solid var(--border);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;display:flex;justify-content:space-between;align-items:center}
+.card-head.admin{background:rgba(255,149,0,.08);border-bottom-color:rgba(255,149,0,.2)}
 .card-body{padding:14px}
 .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:14px}
 .kpi-val{font-size:24px;font-weight:700;margin-top:4px;line-height:1}
 .kpi-lbl{font-size:8px;color:var(--text3);letter-spacing:2px;text-transform:uppercase}
 .kpi-sub{font-size:9px;color:var(--text3);margin-top:4px}
 .table{width:100%;border-collapse:collapse}
-.table th{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);background:rgba(0,229,255,.03)}
-.table td{font-size:10px;padding:9px 12px;border-bottom:1px solid #060e18;color:var(--text)}
+.table th{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);background:#f1f5f9}
+.table td{font-size:10px;padding:9px 12px;border-bottom:1px solid var(--border);color:var(--text)}
 .table tr:last-child td{border-bottom:none}
 .table tr:hover td{background:rgba(0,229,255,.02)}
 .badge{display:inline-block;font-size:8px;padding:2px 7px;border-radius:3px;letter-spacing:1px;text-transform:uppercase}
@@ -49,7 +48,7 @@ nav{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;d
 .b-blue{background:rgba(0,229,255,.1);color:var(--cyan)}
 .b-orange{background:rgba(255,107,53,.12);color:var(--orange)}
 .b-yellow{background:rgba(245,197,24,.12);color:var(--yellow)}
-.b-gray{background:rgba(255,255,255,.05);color:var(--text3)}
+.b-gray{background:rgba(0,0,0,.06);color:var(--text3)}
 .b-red{background:rgba(255,80,80,.12);color:var(--red)}
 .b-admin{background:rgba(255,149,0,.12);color:#ff9500}
 .form-group{margin-bottom:14px}
@@ -63,17 +62,17 @@ nav{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;d
 .spark-bar{flex:1;border-radius:1px;min-height:2px;transition:height .3s}
 .bid-row{display:grid;grid-template-columns:60px 1fr 70px 70px 70px 60px;gap:6px;padding:6px 12px;border-bottom:1px solid #050c15;font-size:9.5px;align-items:center;animation:sl .3s ease}
 @keyframes sl{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
-.bid-head{font-size:8px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;background:rgba(0,229,255,.03)}
+.bid-head{font-size:8px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;background:#f1f5f9}
 #auth-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:1000}
 .auth-box{background:var(--bg1);border:1px solid var(--border);border-radius:12px;padding:32px;width:360px}
 .auth-logo{text-align:center;margin-bottom:24px}
-.auth-title{font-size:18px;font-weight:800;color:#ddf0ff;margin-bottom:4px}
+.auth-title{font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px}
 .auth-sub{font-size:9px;color:var(--text3);letter-spacing:3px}
 .auth-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:5px;overflow:hidden}
 .auth-tab{flex:1;background:none;border:none;padding:8px;font-family:inherit;font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;color:var(--text3);transition:all .2s}
 .auth-tab.on{background:rgba(0,229,255,.1);color:var(--cyan)}
 .auth-err{background:rgba(255,80,80,.1);border:1px solid rgba(255,80,80,.3);color:#ff8080;font-size:10px;padding:8px 10px;border-radius:4px;margin-bottom:12px;display:none}
-.upgrade-banner{background:rgba(0,229,255,.05);border:1px solid rgba(0,229,255,.2);border-radius:8px;padding:16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.upgrade-banner{background:rgba(0,102,255,.05);border:1px solid rgba(0,102,255,.2);border-radius:8px;padding:16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
 .admin-badge{background:rgba(255,149,0,.15);border:1px solid rgba(255,149,0,.3);color:#ff9500;font-size:8px;padding:2px 8px;border-radius:10px;letter-spacing:2px;text-transform:uppercase;margin-left:8px}
 </style>
 </head>
@@ -126,7 +125,7 @@ nav{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;d
 <div id="dashboard" class="pnl on">
   <div id="upgrade-banner" class="upgrade-banner" style="display:none">
     <div>
-      <div style="font-size:11px;color:#ddf0ff;font-weight:700">You're on the Free plan</div>
+      <div style="font-size:11px;color:var(--text);font-weight:700">You're on the Free plan</div>
       <div style="font-size:9px;color:var(--text3);margin-top:3px">Upgrade to create and run campaigns</div>
     </div>
     <button class="btn btn-cyan" onclick="nav('billing',document.querySelector('[onclick*=billing]'))">UPGRADE →</button>
@@ -245,20 +244,20 @@ nav{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;d
       <div class="grid3">
         <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:16px">
           <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">Starter</div>
-          <div style="font-size:22px;font-weight:800;color:#ddf0ff;margin-bottom:4px">$799<span style="font-size:10px;color:var(--text3)">/mo</span></div>
+          <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px">$799<span style="font-size:10px;color:var(--text3)">/mo</span></div>
           <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:1.8">Up to $5k/mo ad spend<br>8 SSP connections<br>AI bidding & optimization<br>Weekly reports</div>
           <button class="btn btn-cyan" style="width:100%" onclick="subscribe('starter')">SELECT PLAN</button>
         </div>
         <div style="background:var(--bg1);border:1px solid rgba(168,255,62,.3);border-radius:8px;padding:16px;position:relative">
-          <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--green);color:#050f05;font-size:7px;padding:2px 8px;border-radius:10px;letter-spacing:2px;font-weight:700">POPULAR</div>
+          <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--green);color:#ffffff;font-size:7px;padding:2px 8px;border-radius:10px;letter-spacing:2px;font-weight:700">POPULAR</div>
           <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">Growth</div>
-          <div style="font-size:22px;font-weight:800;color:#ddf0ff;margin-bottom:4px">$1,499<span style="font-size:10px;color:var(--text3)">/mo</span></div>
+          <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px">$1,499<span style="font-size:10px;color:var(--text3)">/mo</span></div>
           <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:1.8">Up to $20k/mo ad spend<br>All Starter features<br>Advanced targeting<br>Daily reports + alerts</div>
           <button class="btn btn-green" style="width:100%" onclick="subscribe('growth')">SELECT PLAN</button>
         </div>
         <div style="background:var(--bg1);border:1px solid rgba(214,123,255,.3);border-radius:8px;padding:16px">
           <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:8px">Scale</div>
-          <div style="font-size:22px;font-weight:800;color:#ddf0ff;margin-bottom:4px">$2,999<span style="font-size:10px;color:var(--text3)">/mo</span></div>
+          <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px">$2,999<span style="font-size:10px;color:var(--text3)">/mo</span></div>
           <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:1.8">Up to $100k/mo ad spend<br>All Growth features<br>White-label option<br>Dedicated support</div>
           <button class="btn" style="border-color:var(--purple);color:var(--purple);width:100%" onclick="subscribe('scale')">SELECT PLAN</button>
         </div>
@@ -268,7 +267,6 @@ nav{background:var(--bg1);border-bottom:1px solid var(--border);padding:0 20px;d
 </div>
 
 <!-- ══ ADMIN PANEL ══ -->
-
 <div id="admin" class="pnl">
   <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
     <div style="font-size:13px;font-weight:800;color:#ff9500;letter-spacing:2px;text-transform:uppercase">Admin Panel</div>
@@ -387,8 +385,8 @@ function renderCampaigns(){
     var pct=Math.min(100,(c.spent/c.budget*100)).toFixed(0);
     var ctr=c.impressions>0?(c.clicks/c.impressions*100).toFixed(2):'0.00';
     var sb=c.status==='active'?'<span class="badge b-green">active</span>':c.status==='paused'?'<span class="badge b-yellow">paused</span>':'<span class="badge b-gray">'+c.status+'</span>';
-    html+='<tr><td style="color:#ddf0ff">'+c.name+'</td><td>'+sb+'</td><td>$'+parseFloat(c.spent||0).toFixed(2)+'</td><td>$'+parseFloat(c.budget).toFixed(2)+'</td><td style="color:var(--cyan)">$'+parseFloat(c.cpm_bid).toFixed(2)+'</td><td>'+(c.impressions||0).toLocaleString()+'</td><td>'+ctr+'%</td><td><button class="btn btn-sm btn-cyan" onclick="toggleCampaign(\''+c.id+'\',\''+c.status+'\')">'+( c.status==='active'?'PAUSE':'RESUME')+'</button></td></tr>';
-    dashHtml+='<tr><td style="color:#ddf0ff">'+c.name+'</td><td>'+sb+'</td><td><div>$'+parseFloat(c.spent||0).toFixed(2)+' / $'+parseFloat(c.budget).toFixed(2)+'</div><div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:var(--cyan)"></div></div></td><td style="color:var(--cyan)">$'+parseFloat(c.cpm_bid).toFixed(2)+'</td><td><div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:var(--green)"></div></div></td></tr>';
+    html+='<tr><td style="color:var(--text)">'+c.name+'</td><td>'+sb+'</td><td>$'+parseFloat(c.spent||0).toFixed(2)+'</td><td>$'+parseFloat(c.budget).toFixed(2)+'</td><td style="color:var(--cyan)">$'+parseFloat(c.cpm_bid).toFixed(2)+'</td><td>'+(c.impressions||0).toLocaleString()+'</td><td>'+ctr+'%</td><td><button class="btn btn-sm btn-cyan" onclick="toggleCampaign(\''+c.id+'\',\''+c.status+'\')">'+( c.status==='active'?'PAUSE':'RESUME')+'</button></td></tr>';
+    dashHtml+='<tr><td style="color:var(--text)">'+c.name+'</td><td>'+sb+'</td><td><div>$'+parseFloat(c.spent||0).toFixed(2)+' / $'+parseFloat(c.budget).toFixed(2)+'</div><div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:var(--cyan)"></div></div></td><td style="color:var(--cyan)">$'+parseFloat(c.cpm_bid).toFixed(2)+'</td><td><div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:var(--green)"></div></div></td></tr>';
   });
   body.innerHTML=html;dashBody.innerHTML=dashHtml;
 }
@@ -450,7 +448,7 @@ function loadAdminData(){
     if(!Array.isArray(data)||!data.length){body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">No customers yet</td></tr>';return;}
     body.innerHTML=data.map(function(c){
       var pb=c.plan==='free'?'<span class="badge b-gray">free</span>':c.plan==='starter'?'<span class="badge b-blue">starter</span>':c.plan==='growth'?'<span class="badge b-green">growth</span>':'<span class="badge b-admin">scale</span>';
-      return '<tr><td style="color:#ddf0ff">'+c.name+'</td><td style="color:var(--text2)">'+c.email+'</td><td>'+pb+'</td><td style="color:var(--green)">$'+parseFloat(c.balance||0).toFixed(2)+'</td><td>'+c.campaign_count+'</td><td style="color:var(--cyan)">$'+parseFloat(c.total_spent||0).toFixed(2)+'</td><td style="color:var(--text3)">'+new Date(c.created_at).toLocaleDateString()+'</td>'
+      return '<tr><td style="color:var(--text)">'+c.name+'</td><td style="color:var(--text2)">'+c.email+'</td><td>'+pb+'</td><td style="color:var(--green)">$'+parseFloat(c.balance||0).toFixed(2)+'</td><td>'+c.campaign_count+'</td><td style="color:var(--cyan)">$'+parseFloat(c.total_spent||0).toFixed(2)+'</td><td style="color:var(--text3)">'+new Date(c.created_at).toLocaleDateString()+'</td>'
         +'<td style="display:flex;gap:4px"><select class="form-input" style="padding:2px 4px;font-size:8px;width:80px" onchange="updateCustomerPlan(\''+c.id+'\',this.value)"><option value="free"'+(c.plan==='free'?' selected':'')+'>Free</option><option value="starter"'+(c.plan==='starter'?' selected':'')+'>Starter</option><option value="growth"'+(c.plan==='growth'?' selected':'')+'>Growth</option><option value="scale"'+(c.plan==='scale'?' selected':'')+'>Scale</option></select>'
         +'<button class="btn btn-red btn-sm" onclick="deleteCustomer(\''+c.id+'\',\''+c.name+'\')">✕</button></td></tr>';
     }).join('');
@@ -460,7 +458,7 @@ function loadAdminData(){
     if(!Array.isArray(data)||!data.length){body.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No campaigns yet</td></tr>';return;}
     body.innerHTML=data.map(function(c){
       var sb=c.status==='active'?'<span class="badge b-green">active</span>':c.status==='paused'?'<span class="badge b-yellow">paused</span>':'<span class="badge b-gray">'+c.status+'</span>';
-      return '<tr><td style="color:#ddf0ff">'+c.name+'</td><td style="color:var(--text2)">'+c.user_name+'</td><td>'+sb+'</td><td style="color:var(--orange)">$'+parseFloat(c.spent||0).toFixed(2)+'</td><td>$'+parseFloat(c.budget).toFixed(2)+'</td><td>'+(c.impressions||0).toLocaleString()+'</td></tr>';
+      return '<tr><td style="color:var(--text)">'+c.name+'</td><td style="color:var(--text2)">'+c.user_name+'</td><td>'+sb+'</td><td style="color:var(--orange)">$'+parseFloat(c.spent||0).toFixed(2)+'</td><td>$'+parseFloat(c.budget).toFixed(2)+'</td><td>'+(c.impressions||0).toLocaleString()+'</td></tr>';
     }).join('');
   });
 }
@@ -496,7 +494,7 @@ function startSimBids(){
 function addBidRow(b){
   var row=document.createElement('div');row.className='bid-row';
   var result=b.conv?'<span class="badge b-yellow">CONV</span>':b.click?'<span class="badge b-cyan">CLICK</span>':b.won?'<span class="badge b-green">WON</span>':'<span class="badge b-gray">LOST</span>';
-  row.innerHTML='<span style="color:var(--text3);font-family:monospace">'+b.id+'</span><span style="color:#ddf0ff">'+b.campaign+'</span><span style="color:var(--text2)">'+b.exchange+'</span><span style="color:var(--text3)">'+b.geo+'</span><span style="color:var(--text)">'+(b.won?'$'+b.cpm:'—')+'</span>'+result;
+  row.innerHTML='<span style="color:var(--text3);font-family:monospace">'+b.id+'</span><span style="color:var(--text)">'+b.campaign+'</span><span style="color:var(--text2)">'+b.exchange+'</span><span style="color:var(--text3)">'+b.geo+'</span><span style="color:var(--text)">'+(b.won?'$'+b.cpm:'—')+'</span>'+result;
   var stream=document.getElementById('bid-stream');stream.insertBefore(row,stream.firstChild);
   while(stream.children.length>80)stream.removeChild(stream.lastChild);
   var db=document.getElementById('dash-bids');db.insertBefore(row.cloneNode(true),db.firstChild);
@@ -514,7 +512,7 @@ function saveCreative(){
 function renderCreatives(){
   var body=document.getElementById('creatives-body');
   if(!creativesList.length){body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No creatives yet</td></tr>';return;}
-  body.innerHTML=creativesList.map(function(c){return'<tr><td style="color:#ddf0ff">'+c.name+'</td><td><span class="badge b-blue">'+c.type+'</span></td><td>'+c.w+'x'+c.h+'</td><td><span class="badge b-green">'+c.status+'</span></td><td style="color:var(--text2)">'+c.click_url+'</td></tr>';}).join('');
+  body.innerHTML=creativesList.map(function(c){return'<tr><td style="color:var(--text)">'+c.name+'</td><td><span class="badge b-blue">'+c.type+'</span></td><td>'+c.w+'x'+c.h+'</td><td><span class="badge b-green">'+c.status+'</span></td><td style="color:var(--text2)">'+c.click_url+'</td></tr>';}).join('');
 }
 
 function topUp(cents){apiFetch('/api/billing/topup','POST',{amount_cents:cents}).then(function(r){if(r.error)alert(r.error);else alert('Stripe checkout initiated.');});}
@@ -534,6 +532,5 @@ function renderSparkline(){
   document.getElementById('spend-spark').innerHTML=data.map(function(v){var h=Math.round((v/max)*100);return'<div class="spark-bar" style="height:'+h+'%;background:rgba(0,229,255,'+(0.3+v/max*0.7)+')"></div>';}).join('');
 }
 </script>
-
 </body>
 </html>
