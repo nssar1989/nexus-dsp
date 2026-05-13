@@ -98,7 +98,17 @@ nav{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;display
     <div id="register-form" style="display:none">
       <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="reg-name" type="text" placeholder="Your name"></div>
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="reg-email" type="email" placeholder="you@company.com"></div>
-      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="reg-pass" type="password" placeholder="Min 8 characters"></div>
+      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="reg-pass" type="password" placeholder="Min 8 chars, uppercase, number, symbol" oninput="checkPwdStrength(this.value)">
+      <div id="pwd-strength" style="margin-top:8px;display:none">
+        <div style="display:flex;gap:4px;margin-bottom:4px">
+          <div id="ps1" style="flex:1;height:4px;border-radius:2px;background:var(--border)"></div>
+          <div id="ps2" style="flex:1;height:4px;border-radius:2px;background:var(--border)"></div>
+          <div id="ps3" style="flex:1;height:4px;border-radius:2px;background:var(--border)"></div>
+          <div id="ps4" style="flex:1;height:4px;border-radius:2px;background:var(--border)"></div>
+        </div>
+        <div id="pwd-strength-label" style="font-size:10px;color:var(--text3)"></div>
+      </div>
+      </div>
       <button class="btn btn-green" style="width:100%;padding:10px;font-size:10px" onclick="doRegister()">CREATE ACCOUNT →</button>
     </div>
   </div>
@@ -326,6 +336,25 @@ function showApp(){
   loadCampaigns();loadSummary();startSimBids();
 }
 
+function checkPwdStrength(pwd){
+  var el=document.getElementById('pwd-strength');
+  var lbl=document.getElementById('pwd-strength-label');
+  if(!pwd){el.style.display='none';return;}
+  el.style.display='block';
+  var score=0;
+  if(pwd.length>=8)score++;
+  if(/[A-Z]/.test(pwd))score++;
+  if(/[0-9]/.test(pwd))score++;
+  if(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd))score++;
+  var colors=['#dc2626','#ea580c','#d97706','#059669'];
+  var labels=['Weak','Fair','Good','Strong'];
+  for(var i=1;i<=4;i++){
+    var bar=document.getElementById('ps'+i);
+    bar.style.background=i<=score?colors[score-1]:'var(--border)';
+  }
+  lbl.textContent=labels[score-1]||'Too weak';
+  lbl.style.color=colors[score-1]||'#dc2626';
+}
 function authTab(tab,btn){
   document.querySelectorAll('.auth-tab').forEach(function(b){b.classList.remove('on');});
   btn.classList.add('on');
