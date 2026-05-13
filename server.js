@@ -33,7 +33,7 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 app.set("trust proxy", 1);
 app.use(helmet());
-app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
+app.use(cors({ origin: "*" }));
 app.use(express.json());
 app.use(rateLimit({ windowMs: 60_000, max: 120 }));
 
