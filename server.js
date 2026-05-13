@@ -22,7 +22,7 @@ const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 app.set("trust proxy", 1);
 app.use(helmet());
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: process.env.FRONTEND_URL || "*" }));
 app.use(express.json());
 app.use(rateLimit({ windowMs: 60_000, max: 120 }));
 
@@ -50,6 +50,9 @@ app.post("/api/auth/register", async (req, res) => {
     const { name, email, password } = req.body;
     if (!name || !email || !password) return res.status(400).json({ error: "Name, email and password required" });
     if (password.length < 8) return res.status(400).json({ error: "Password must be at least 8 characters" });
+    if (!/[A-Z]/.test(password)) return res.status(400).json({ error: "Password must contain at least one uppercase letter" });
+    if (!/[0-9]/.test(password)) return res.status(400).json({ error: "Password must contain at least one number" });
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) return res.status(400).json({ error: "Password must contain at least one special character (!@#$%^&*)" });
 
     const existing = await pg.query("SELECT id FROM users WHERE email = $1", [email]);
     if (existing.rows.length) return res.status(400).json({ error: "Email already registered" });
