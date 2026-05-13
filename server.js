@@ -11,6 +11,17 @@ const { Pool }     = require("pg");
 const Redis        = require("ioredis");
 const Stripe       = require("stripe");
 const { v4: uuid } = require("uuid");
+const nodemailer   = require("nodemailer");
+
+const transporter = nodemailer.createTransport({
+  host: process.env.SMTP_HOST || "smtp.zoho.com",
+  port: parseInt(process.env.SMTP_PORT || "465"),
+  secure: true,
+  auth: {
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS
+  }
+});
 
 const app    = express();
 const server = http.createServer(app);
@@ -60,16 +71,55 @@ app.post("/api/auth/register", async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     const id = uuid();
     const apiKey = "nxs_" + uuid().replace(/-/g, "");
+    const verifyToken = uuid().replace(/-/g, "");
 
     await pg.query(
-      "INSERT INTO users (id, name, email, password_hash, plan, balance, api_key, role, created_at) VALUES ($1,$2,$3,$4,'free',0,$5,'customer',now())",
-      [id, name, email, hash, apiKey]
+      "INSERT INTO users (id, name, email, password_hash, plan, balance, api_key, role, email_verified, verify_token, created_at) VALUES ($1,$2,$3,$4,'free',0,$5,'customer',false,$6,now())",
+      [id, name, email, hash, apiKey, verifyToken]
     );
 
+    // Send verification email
+    const verifyUrl = `${process.env.APP_URL || 'https://hmsmgroup.com'}?verify=${verifyToken}`;
+    try {
+      await transporter.sendMail({
+        from: `"NEXUS DSP" <${process.env.SMTP_USER}>`,
+        to: email,
+        subject: "Verify your NEXUS DSP account",
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px;background:#f8fafc;border-radius:12px">
+            <div style="text-align:center;margin-bottom:24px">
+              <div style="background:linear-gradient(135deg,#1a56db,#0ea5e9);width:48px;height:48px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;font-size:24px">⚡</div>
+              <h1 style="color:#111928;font-size:22px;margin:12px 0 4px">Welcome to NEXUS DSP</h1>
+              <p style="color:#6b7280;font-size:14px">Please verify your email to get started</p>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:24px;border:1px solid #e2e8f0;text-align:center">
+              <p style="color:#374151;margin-bottom:20px">Hi ${name}, click the button below to verify your email address and activate your account.</p>
+              <a href="${verifyUrl}" style="background:#1a56db;color:#fff;padding:12px 32px;border-radius:6px;text-decoration:none;font-weight:600;display:inline-block">Verify Email Address</a>
+              <p style="color:#9ca3af;font-size:12px;margin-top:20px">This link expires in 24 hours. If you didn't create an account, ignore this email.</p>
+            </div>
+          </div>
+        `
+      });
+    } catch (emailErr) {
+      console.error("Email error:", emailErr);
+    }
+
     const token = jwt.sign({ id, email, role: "customer" }, process.env.JWT_SECRET, { expiresIn: "30d" });
-    res.json({ token, user: { id, name, email, plan: "free", balance: "0.00", api_key: apiKey, role: "customer" } });
+    res.json({ token, user: { id, name, email, plan: "free", balance: "0.00", api_key: apiKey, role: "customer" }, message: "Account created! Please check your email to verify your account." });
   } catch (e) {
     console.error("Register error:", e);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+app.get("/api/auth/verify", async (req, res) => {
+  try {
+    const { token } = req.query;
+    if (!token) return res.status(400).json({ error: "Invalid token" });
+    const result = await pg.query("UPDATE users SET email_verified=true, verify_token=null WHERE verify_token=$1 RETURNING id", [token]);
+    if (!result.rows.length) return res.status(400).json({ error: "Invalid or expired verification link" });
+    res.json({ success: true, message: "Email verified! You can now log in." });
+  } catch (e) {
     res.status(500).json({ error: "Server error" });
   }
 });
