@@ -92,13 +92,13 @@ nav{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;display
     <div id="auth-err" class="auth-err"></div>
     <div id="login-form">
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="login-email" type="email" placeholder="you@company.com"></div>
-      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="login-pass" type="password" placeholder="••••••••"></div>
+      <div class="form-group"><label class="form-label">Password</label><div style="position:relative"><input class="form-input" id="login-pass" type="password" placeholder="••••••••" style="padding-right:40px"><button type="button" onclick="togglePwd('login-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px">👁</button></div></div>
       <button class="btn btn-cyan" style="width:100%;padding:10px;font-size:10px" onclick="doLogin()">SIGN IN →</button>
     </div>
     <div id="register-form" style="display:none">
       <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="reg-name" type="text" placeholder="Your name"></div>
       <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="reg-email" type="email" placeholder="you@company.com"></div>
-      <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="reg-pass" type="password" placeholder="Min 8 chars, uppercase, number, symbol" oninput="checkPwdStrength(this.value)">
+      <div class="form-group"><label class="form-label">Password</label><div style="position:relative"><input class="form-input" id="reg-pass" type="password" placeholder="Min 8 chars, uppercase, number, symbol" oninput="checkPwdStrength(this.value)" style="padding-right:40px"><button type="button" onclick="togglePwd('reg-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px">👁</button></div>
       <div id="pwd-strength" style="margin-top:8px;display:none">
         <div style="display:flex;gap:4px;margin-bottom:4px">
           <div id="ps1" style="flex:1;height:4px;border-radius:2px;background:var(--border)"></div>
@@ -336,6 +336,16 @@ function showApp(){
   loadCampaigns();loadSummary();startSimBids();
 }
 
+function togglePwd(id, btn){
+  var input = document.getElementById(id);
+  if(input.type === 'password'){
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
 function checkPwdStrength(pwd){
   var el=document.getElementById('pwd-strength');
   var lbl=document.getElementById('pwd-strength-label');
