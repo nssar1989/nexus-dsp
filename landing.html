@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEXUS DSP — Enterprise Programmatic Advertising</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--black:#0a0a0a;--white:#ffffff;--gray-50:#f9fafb;--gray-100:#f3f4f6;--gray-200:#e5e7eb;--gray-400:#9ca3af;--gray-600:#4b5563;--gray-900:#111827;--blue:#1d4ed8;--blue-light:#3b82f6;--blue-pale:#eff6ff;--green:#059669;--green-pale:#ecfdf5}
+html{scroll-behavior:smooth}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--gray-900);-webkit-font-smoothing:antialiased}
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--gray-200);padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-mark{width:36px;height:36px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;color:white;font-family:'DM Mono',monospace;font-size:14px;font-weight:500}
+.nav-logo-text{font-size:15px;font-weight:600;color:var(--gray-900);letter-spacing:-0.3px}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{font-size:14px;color:var(--gray-600);text-decoration:none;transition:color .15s}
+.nav-links a:hover{color:var(--gray-900)}
+.nav-cta{background:var(--blue);color:white;padding:8px 20px;border-radius:8px;font-size:14px;font-weight:500;text-decoration:none;transition:background .15s}
+.nav-cta:hover{background:#1e40af}
+.hero{padding:160px 48px 120px;max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--blue-pale);border:1px solid #bfdbfe;border-radius:100px;padding:5px 14px;margin-bottom:24px}
+.hero-tag-dot{width:6px;height:6px;background:var(--blue-light);border-radius:50%;animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.hero-tag span{font-size:12px;font-weight:500;color:var(--blue);letter-spacing:0.3px}
+.hero h1{font-size:52px;font-weight:600;line-height:1.1;letter-spacing:-1.5px;color:var(--gray-900);margin-bottom:20px}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.hero-sub{font-size:17px;color:var(--gray-600);line-height:1.65;margin-bottom:40px;font-weight:400}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-primary{background:var(--blue);color:white;padding:12px 24px;border-radius:8px;font-size:15px;font-weight:500;text-decoration:none;transition:all .15s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{background:#1e40af;transform:translateY(-1px)}
+.btn-secondary{background:var(--white);color:var(--gray-900);padding:12px 24px;border-radius:8px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid var(--gray-200);transition:all .15s}
+.btn-secondary:hover{border-color:var(--gray-400)}
+.hero-stats{display:flex;gap:40px;margin-top:48px;padding-top:40px;border-top:1px solid var(--gray-200)}
+.stat-val{font-size:28px;font-weight:600;color:var(--gray-900);letter-spacing:-0.5px;line-height:1}
+.stat-val span{color:var(--blue)}
+.stat-label{font-size:13px;color:var(--gray-400);margin-top:4px}
+.hero-visual{background:var(--gray-50);border:1px solid var(--gray-200);border-radius:16px;padding:24px;overflow:hidden}
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.dash-title{font-size:13px;font-weight:600;color:var(--gray-900)}
+.dash-badge{background:var(--green-pale);color:var(--green);font-size:11px;font-weight:500;padding:3px 10px;border-radius:100px;border:1px solid #a7f3d0}
+.dash-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.dash-metric{background:white;border:1px solid var(--gray-200);border-radius:10px;padding:14px}
+.dash-metric-val{font-size:20px;font-weight:600;color:var(--gray-900);letter-spacing:-0.3px}
+.dash-metric-label{font-size:11px;color:var(--gray-400);margin-top:2px}
+.dash-metric-label.up{color:var(--green)}
+.bid-stream{background:white;border:1px solid var(--gray-200);border-radius:10px;overflow:hidden}
+.bid-stream-header{padding:10px 14px;background:var(--gray-50);border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:6px}
+.bid-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:blink 1.5s ease infinite}
+.bid-stream-title{font-size:11px;font-weight:500;color:var(--gray-600)}
+.bid-row{display:grid;grid-template-columns:50px 1fr 60px 50px;gap:8px;padding:8px 14px;border-bottom:1px solid var(--gray-100);font-size:11px;align-items:center}
+.bid-row:last-child{border:none}
+.bid-id{font-family:'DM Mono',monospace;color:var(--gray-400)}
+.bid-exchange{color:var(--gray-600);font-weight:500}
+.bid-cpm{color:var(--blue);font-weight:600;font-family:'DM Mono',monospace}
+.bid-won{background:#dcfce7;color:#15803d;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;text-align:center}
+.bid-lost{background:#f1f5f9;color:#94a3b8;font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;text-align:center}
+.logos{padding:40px 48px;border-top:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200);background:var(--gray-50)}
+.logos-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;flex-wrap:wrap;gap:20px}
+.logos-label{font-size:12px;color:var(--gray-400);font-weight:500;letter-spacing:0.5px;text-transform:uppercase;margin-right:20px;white-space:nowrap}
+.logo-items{display:flex;align-items:center;gap:32px;flex-wrap:wrap}
+.logo-item{font-size:14px;font-weight:600;color:var(--gray-400);letter-spacing:-0.3px}
+.features{padding:100px 48px;max-width:1200px;margin:0 auto}
+.section-label{font-size:12px;font-weight:500;color:var(--blue);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}
+.section-title{font-size:40px;font-weight:600;letter-spacing:-1px;color:var(--gray-900);line-height:1.15;margin-bottom:16px}
+.section-sub{font-size:17px;color:var(--gray-600);line-height:1.6;max-width:520px;margin-bottom:60px}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--gray-200);border:1px solid var(--gray-200);border-radius:12px;overflow:hidden}
+.feature-card{background:white;padding:32px;transition:background .15s}
+.feature-card:hover{background:var(--gray-50)}
+.feature-icon{width:40px;height:40px;background:var(--blue-pale);border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.feature-title{font-size:16px;font-weight:600;color:var(--gray-900);margin-bottom:8px}
+.feature-desc{font-size:14px;color:var(--gray-600);line-height:1.6}
+.how{padding:100px 48px;background:var(--gray-50);border-top:1px solid var(--gray-200);border-bottom:1px solid var(--gray-200)}
+.how-inner{max-width:1200px;margin:0 auto}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:40px;margin-top:60px}
+.step-num{width:40px;height:40px;background:white;border:1px solid var(--gray-200);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--blue);font-family:'DM Mono',monospace;margin-bottom:16px}
+.step-title{font-size:15px;font-weight:600;color:var(--gray-900);margin-bottom:8px}
+.step-desc{font-size:14px;color:var(--gray-600);line-height:1.6}
+.pricing{padding:100px 48px;max-width:1200px;margin:0 auto}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:60px}
+.price-card{background:white;border:1px solid var(--gray-200);border-radius:12px;padding:32px;position:relative;transition:border-color .15s}
+.price-card:hover{border-color:var(--gray-400)}
+.price-card.featured{border-color:var(--blue);border-width:2px}
+.featured-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--blue);color:white;font-size:11px;font-weight:500;padding:4px 14px;border-radius:100px;white-space:nowrap}
+.price-name{font-size:13px;font-weight:600;color:var(--gray-600);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:12px}
+.price-amount{font-size:40px;font-weight:600;color:var(--gray-900);letter-spacing:-1px;line-height:1}
+.price-amount sup{font-size:20px;font-weight:500;vertical-align:top;margin-top:8px}
+.price-period{font-size:14px;color:var(--gray-400);margin-top:4px;margin-bottom:24px}
+.price-divider{height:1px;background:var(--gray-200);margin-bottom:24px}
+.price-features{list-style:none;margin-bottom:32px}
+.price-features li{font-size:14px;color:var(--gray-600);padding:7px 0;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--gray-100)}
+.price-features li:last-child{border:none}
+.price-features li::before{content:'✓';color:var(--green);font-weight:600;font-size:13px}
+.btn-plan{display:block;width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:500;text-align:center;text-decoration:none;transition:all .15s;cursor:pointer;border:none}
+.btn-plan-outline{background:white;color:var(--blue);border:1px solid var(--blue)}
+.btn-plan-outline:hover{background:var(--blue-pale)}
+.btn-plan-filled{background:var(--blue);color:white}
+.btn-plan-filled:hover{background:#1e40af}
+.cta{padding:100px 48px;background:var(--gray-900)}
+.cta-inner{max-width:680px;margin:0 auto;text-align:center}
+.cta h2{font-size:40px;font-weight:600;color:white;letter-spacing:-1px;margin-bottom:16px;line-height:1.15}
+.cta p{font-size:17px;color:var(--gray-400);line-height:1.6;margin-bottom:40px}
+.cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-white{background:white;color:var(--gray-900);padding:12px 24px;border-radius:8px;font-size:15px;font-weight:500;text-decoration:none;transition:all .15s}
+.btn-white:hover{background:var(--gray-100)}
+.btn-ghost{background:transparent;color:white;padding:12px 24px;border-radius:8px;font-size:15px;font-weight:500;text-decoration:none;border:1px solid rgba(255,255,255,.2);transition:all .15s}
+.btn-ghost:hover{border-color:rgba(255,255,255,.4)}
+footer{background:var(--gray-900);border-top:1px solid rgba(255,255,255,.08);padding:32px 48px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{display:flex;align-items:center;gap:10px}
+.footer-logo-mark{width:28px;height:28px;background:var(--blue);border-radius:6px;display:flex;align-items:center;justify-content:center;color:white;font-family:'DM Mono',monospace;font-size:11px;font-weight:500}
+.footer-logo-text{font-size:13px;font-weight:500;color:white}
+.footer-links{display:flex;gap:24px}
+.footer-links a{font-size:13px;color:var(--gray-400);text-decoration:none;transition:color .15s}
+.footer-links a:hover{color:white}
+.footer-copy{font-size:12px;color:var(--gray-600)}
+@media(max-width:900px){
+  nav{padding:0 24px}
+  .nav-links{display:none}
+  .hero{grid-template-columns:1fr;padding:120px 24px 60px;gap:40px}
+  .hero h1{font-size:36px}
+  .hero-visual{display:none}
+  .features{padding:60px 24px}
+  .features-grid{grid-template-columns:1fr}
+  .how{padding:60px 24px}
+  .steps{grid-template-columns:1fr 1fr;gap:24px}
+  .pricing{padding:60px 24px}
+  .pricing-grid{grid-template-columns:1fr}
+  .cta{padding:60px 24px}
+  footer{padding:24px;flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">N</div>
+    <span class="nav-logo-text">NEXUS DSP</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Platform</a>
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="mailto:admin@hmsmgroup.com">Contact</a>
+  </div>
+  <a href="/dashboard" class="nav-cta">Get started</a>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="hero-tag">
+      <span class="hero-tag-dot"></span>
+      <span>Self-serve programmatic advertising</span>
+    </div>
+    <h1>Programmatic ads.<br>Without the <em>enterprise</em><br>price tag.</h1>
+    <p class="hero-sub">Access the same premium inventory that enterprise advertisers pay $50,000+ per month for — starting at $799/month. No contracts, no minimums, live in 24 hours.</p>
+    <div class="hero-actions">
+      <a href="/dashboard" class="btn-primary">Start for free →</a>
+      <a href="#pricing" class="btn-secondary">View pricing</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-val"><span>$50k</span></div>
+        <div class="stat-label">Competitor minimum</div>
+      </div>
+      <div>
+        <div class="stat-val"><span>$799</span></div>
+        <div class="stat-label">Our starting price</div>
+      </div>
+      <div>
+        <div class="stat-val"><span>24h</span></div>
+        <div class="stat-label">Time to go live</div>
+      </div>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="dash-header">
+      <span class="dash-title">Live Bid Stream</span>
+      <span class="dash-badge">● Live</span>
+    </div>
+    <div class="dash-metrics">
+      <div class="dash-metric">
+        <div class="dash-metric-val">$3.42</div>
+        <div class="dash-metric-label">Avg CPM</div>
+      </div>
+      <div class="dash-metric">
+        <div class="dash-metric-val">1,847</div>
+        <div class="dash-metric-label up">↑ Bids today</div>
+      </div>
+      <div class="dash-metric">
+        <div class="dash-metric-val">68%</div>
+        <div class="dash-metric-label up">↑ Win rate</div>
+      </div>
+    </div>
+    <div class="bid-stream">
+      <div class="bid-stream-header">
+        <div class="bid-dot"></div>
+        <span class="bid-stream-title">Real-time bid activity</span>
+      </div>
+      <div class="bid-row"><span class="bid-id">#0241</span><span class="bid-exchange">Exchange — US</span><span class="bid-cpm">$3.80</span><span class="bid-won">WON</span></div>
+      <div class="bid-row"><span class="bid-id">#0240</span><span class="bid-exchange">Exchange — UK</span><span class="bid-cpm">$2.95</span><span class="bid-lost">LOST</span></div>
+      <div class="bid-row"><span class="bid-id">#0239</span><span class="bid-exchange">Exchange — DE</span><span class="bid-cpm">$4.20</span><span class="bid-won">WON</span></div>
+      <div class="bid-row"><span class="bid-id">#0238</span><span class="bid-exchange">Exchange — CA</span><span class="bid-cpm">$3.15</span><span class="bid-won">WON</span></div>
+      <div class="bid-row"><span class="bid-id">#0237</span><span class="bid-exchange">Exchange — AU</span><span class="bid-cpm">$2.60</span><span class="bid-lost">LOST</span></div>
+    </div>
+  </div>
+</section>
+
+<div class="logos">
+  <div class="logos-inner">
+    <span class="logos-label">Connected to top exchanges</span>
+    <div class="logo-items">
+      <span class="logo-item">Display</span>
+      <span class="logo-item">Mobile</span>
+      <span class="logo-item">Video</span>
+      <span class="logo-item">Native</span>
+      <span class="logo-item">CTV</span>
+      <span class="logo-item">Audio</span>
+    </div>
+  </div>
+</div>
+
+<section class="features" id="features">
+  <div class="section-label">Platform</div>
+  <h2 class="section-title">Everything you need to<br>run programmatic</h2>
+  <p class="section-sub">A complete DSP stack — real-time bidder, live dashboard, reporting, and billing — all in one platform.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">⚡</div>
+      <div class="feature-title">Real-time bidding</div>
+      <div class="feature-desc">OpenRTB 2.5 compliant bidder processes bid requests across all connected exchanges with millisecond response times.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <div class="feature-title">Live dashboard</div>
+      <div class="feature-desc">Real-time campaign metrics, bid stream visualization, and performance reporting updated every second.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <div class="feature-title">Precision targeting</div>
+      <div class="feature-desc">Target by geography, device type, frequency cap, and more. AI-powered bid optimization maximizes ROI automatically.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🌐</div>
+      <div class="feature-title">Premium inventory</div>
+      <div class="feature-desc">Access the same world-class publisher inventory that enterprise DSPs charge $50k/month minimums for.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">💳</div>
+      <div class="feature-title">Secure billing</div>
+      <div class="feature-desc">Stripe-powered billing with instant plan upgrades, balance management, and automated subscription handling.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🛡️</div>
+      <div class="feature-title">Brand safety</div>
+      <div class="feature-desc">Frequency capping, domain controls, and viewability filters keep your campaigns effective and brand-safe.</div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">From signup to live in 24 hours</h2>
+    <div class="steps">
+      <div>
+        <div class="step-num">01</div>
+        <div class="step-title">Create account</div>
+        <div class="step-desc">Sign up at hmsmgroup.com and choose your plan. Access is instant — no approval required.</div>
+      </div>
+      <div>
+        <div class="step-num">02</div>
+        <div class="step-title">Configure campaigns</div>
+        <div class="step-desc">Set your budget, CPM bids, target geos and devices. Our AI optimizes bids automatically.</div>
+      </div>
+      <div>
+        <div class="step-num">03</div>
+        <div class="step-title">Go live</div>
+        <div class="step-desc">Your campaigns start bidding across premium exchanges in real time. Watch impressions roll in.</div>
+      </div>
+      <div>
+        <div class="step-num">04</div>
+        <div class="step-title">Scale</div>
+        <div class="step-desc">Increase budgets, add creatives, expand targeting. Upgrade your plan as you grow.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <div class="section-label">Pricing</div>
+  <h2 class="section-title">Simple, transparent pricing</h2>
+  <p class="section-sub">All plans include full platform access and real-time bidding. No contracts, cancel any time.</p>
+  <div class="pricing-grid">
+    <div class="price-card">
+      <div class="price-name">Starter</div>
+      <div class="price-amount"><sup>$</sup>799</div>
+      <div class="price-period">per month</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li>Up to $5k/mo ad spend</li>
+        <li>Multi-exchange access</li>
+        <li>AI bidding & optimization</li>
+        <li>Real-time dashboard</li>
+        <li>Weekly reports</li>
+        <li>Email support</li>
+      </ul>
+      <a href="/dashboard" class="btn-plan btn-plan-outline">Get started</a>
+    </div>
+    <div class="price-card featured">
+      <div class="featured-badge">Most popular</div>
+      <div class="price-name">Growth</div>
+      <div class="price-amount"><sup>$</sup>1,499</div>
+      <div class="price-period">per month</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li>Up to $20k/mo ad spend</li>
+        <li>All Starter features</li>
+        <li>Advanced targeting</li>
+        <li>Daily reports & alerts</li>
+        <li>Priority support</li>
+        <li>Custom integrations</li>
+      </ul>
+      <a href="/dashboard" class="btn-plan btn-plan-filled">Get started</a>
+    </div>
+    <div class="price-card">
+      <div class="price-name">Scale</div>
+      <div class="price-amount"><sup>$</sup>2,999</div>
+      <div class="price-period">per month</div>
+      <div class="price-divider"></div>
+      <ul class="price-features">
+        <li>Up to $100k/mo ad spend</li>
+        <li>All Growth features</li>
+        <li>White-label option</li>
+        <li>Dedicated account manager</li>
+        <li>SLA guarantee</li>
+        <li>Custom contracts</li>
+      </ul>
+      <a href="/dashboard" class="btn-plan btn-plan-outline">Get started</a>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="cta-inner">
+    <h2>Ready to launch your programmatic stack?</h2>
+    <p>Join NEXUS DSP and start accessing premium ad inventory across top global exchanges today.</p>
+    <div class="cta-actions">
+      <a href="/dashboard" class="btn-white">Get started free</a>
+      <a href="mailto:admin@hmsmgroup.com" class="btn-ghost">Contact us</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-mark">N</div>
+    <span class="footer-logo-text">NEXUS DSP — HMSM Group Inc.</span>
+  </div>
+  <div class="footer-links">
+    <a href="/dashboard">Platform</a>
+    <a href="#pricing">Pricing</a>
+    <a href="mailto:admin@hmsmgroup.com">Contact</a>
+  </div>
+  <span class="footer-copy">© 2026 HMSM Group Inc.</span>
+</footer>
+</body>
+</html>
