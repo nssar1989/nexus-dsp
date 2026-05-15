@@ -141,9 +141,7 @@ footer{background:var(--gray-900);border-top:1px solid rgba(255,255,255,.08);pad
     <a href="#features">Platform</a>
     <a href="#how">How it works</a>
     <a href="#pricing">Pricing</a>
-    <a href="mailto:admin@hmsmgroup.com">Contact</a>
-  </div>
-  <a href="/dashboard.html" class="nav-cta">Get started</a>
+    <a href="#contact">Contact</a>
 </nav>
 
 <section class="hero">
@@ -347,12 +345,63 @@ footer{background:var(--gray-900);border-top:1px solid rgba(255,255,255,.08);pad
     <p>Join NEXUS DSP and start accessing premium ad inventory across top global exchanges today.</p>
     <div class="cta-actions">
       <a href="/dashboard.html" class="btn-white">Get started free</a>
-      <a href="mailto:admin@hmsmgroup.com" class="btn-ghost">Contact us</a>
+      <a href="#contact" class="btn-ghost">Contact us</a>
     </div>
   </div>
 </section>
 
-<footer>
+<section id="contact" style="padding:100px 48px;max-width:800px;margin:0 auto">
+  <div class="section-label">Contact</div>
+  <h2 class="section-title">Get in touch</h2>
+  <p class="section-sub">Have questions about NEXUS DSP? We'll get back to you within 24 hours.</p>
+  <div style="background:white;border:1px solid var(--gray-200);border-radius:12px;padding:40px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+      <div>
+        <label style="font-size:13px;font-weight:500;color:var(--gray-600);display:block;margin-bottom:6px">Full Name</label>
+        <input id="contact-name" type="text" placeholder="Nssar Azzubaidi" style="width:100%;padding:10px 14px;border:1px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s" onfocus="this.style.borderColor='#1d4ed8'" onblur="this.style.borderColor='var(--gray-200)'">
+      </div>
+      <div>
+        <label style="font-size:13px;font-weight:500;color:var(--gray-600);display:block;margin-bottom:6px">Email Address</label>
+        <input id="contact-email" type="email" placeholder="you@company.com" style="width:100%;padding:10px 14px;border:1px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s" onfocus="this.style.borderColor='#1d4ed8'" onblur="this.style.borderColor='var(--gray-200)'">
+      </div>
+    </div>
+    <div style="margin-bottom:20px">
+      <label style="font-size:13px;font-weight:500;color:var(--gray-600);display:block;margin-bottom:6px">Company</label>
+      <input id="contact-company" type="text" placeholder="Your company name" style="width:100%;padding:10px 14px;border:1px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .15s" onfocus="this.style.borderColor='#1d4ed8'" onblur="this.style.borderColor='var(--gray-200)'">
+    </div>
+    <div style="margin-bottom:24px">
+      <label style="font-size:13px;font-weight:500;color:var(--gray-600);display:block;margin-bottom:6px">Message</label>
+      <textarea id="contact-message" placeholder="Tell us about your advertising needs..." rows="4" style="width:100%;padding:10px 14px;border:1px solid var(--gray-200);border-radius:8px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;resize:vertical;transition:border-color .15s" onfocus="this.style.borderColor='#1d4ed8'" onblur="this.style.borderColor='var(--gray-200)'"></textarea>
+    </div>
+    <div id="contact-msg" style="display:none;padding:12px;border-radius:8px;font-size:14px;margin-bottom:16px"></div>
+    <button onclick="submitContact()" style="background:#1d4ed8;color:white;padding:12px 32px;border-radius:8px;font-size:15px;font-weight:500;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s" onmouseover="this.style.background='#1e40af'" onmouseout="this.style.background='#1d4ed8'">Send Message →</button>
+  </div>
+</section>
+
+<script>
+function submitContact(){
+  var name=document.getElementById('contact-name').value;
+  var email=document.getElementById('contact-email').value;
+  var company=document.getElementById('contact-company').value;
+  var message=document.getElementById('contact-message').value;
+  var msg=document.getElementById('contact-msg');
+  if(!name||!email||!message){
+    msg.style.display='block';
+    msg.style.background='#fef2f2';
+    msg.style.border='1px solid #fecaca';
+    msg.style.color='#dc2626';
+    msg.textContent='Please fill in your name, email and message.';
+    return;
+  }
+  var mailto='mailto:admin@hmsmgroup.com?subject=NEXUS DSP Inquiry from '+encodeURIComponent(name)+'&body='+encodeURIComponent('Name: '+name+'\nEmail: '+email+'\nCompany: '+company+'\n\nMessage:\n'+message);
+  window.location.href=mailto;
+  msg.style.display='block';
+  msg.style.background='#ecfdf5';
+  msg.style.border='1px solid #a7f3d0';
+  msg.style.color='#059669';
+  msg.textContent='Thank you! Your message has been sent to our team.';
+}
+</script>
   <div class="footer-logo">
     <div class="footer-logo-mark">N</div>
     <span class="footer-logo-text">NEXUS DSP — HMSM Group Inc.</span>
@@ -360,9 +409,7 @@ footer{background:var(--gray-900);border-top:1px solid rgba(255,255,255,.08);pad
   <div class="footer-links">
     <a href="/dashboard.html">Platform</a>
     <a href="#pricing">Pricing</a>
-    <a href="mailto:admin@hmsmgroup.com">Contact</a>
-  </div>
-  <span class="footer-copy">© 2026 HMSM Group Inc.</span>
+    <a href="#contact">Contact</a>
 </footer>
 </body>
 </html>
