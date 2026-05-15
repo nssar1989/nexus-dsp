@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NEXUS DSP — Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#f4f6f9;--bg1:#ffffff;--bg2:#f8fafc;--border:#e2e8f0;--cyan:#1a56db;--green:#057a55;--orange:#d03801;--yellow:#c27803;--purple:#6c2bd9;--red:#c81e1e;--text:#111928;--text2:#4b5563;--text3:#9ca3af}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+nav{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;display:flex;align-items:center;gap:0;position:sticky;top:0;z-index:100;height:56px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:2px}
+.logo{font-size:16px;font-weight:700;color:var(--cyan);letter-spacing:.5px;margin-right:32px;display:flex;align-items:center;gap:8px}
+.logo-icon{width:32px;height:32px;background:linear-gradient(135deg,#1a56db,#0ea5e9);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.nav-link{font-size:11px;letter-spacing:.5px;padding:0 16px;height:56px;display:flex;align-items:center;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:inherit;font-weight:500}
+.nav-link:hover{color:var(--text);background:var(--bg)}.nav-link.on{color:var(--cyan);border-bottom-color:var(--cyan)}
+.nav-link.admin-link{color:#d97706}.nav-link.admin-link.on{color:#d97706;border-bottom-color:#d97706}
+.nav-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.bal{font-size:13px;color:var(--green);font-weight:700}.bal-lbl{font-size:9px;color:var(--text3);letter-spacing:1px}
+.btn{background:none;border:1px solid;padding:6px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:11px;letter-spacing:.5px;transition:all .2s;font-weight:500}
+.btn-cyan{border-color:var(--cyan);color:var(--cyan);background:#eff6ff}.btn-cyan:hover{background:#dbeafe}
+.btn-green{border-color:var(--green);color:var(--green);background:#f0fdf4}.btn-green:hover{background:#dcfce7}
+.btn-red{border-color:var(--red);color:var(--red);background:#fef2f2}.btn-red:hover{background:#fee2e2}
+.btn-orange{border-color:#d97706;color:#d97706;background:#fffbeb}.btn-orange:hover{background:#fef3c7}
+.btn-sm{padding:4px 10px;font-size:10px}
+#app{padding:20px 24px;max-height:calc(100vh - 56px);overflow-y:auto}
+.pnl{display:none}.pnl.on{display:block}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.grid5{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+@media(max-width:700px){.grid4,.grid5{grid-template-columns:1fr 1fr}.grid3{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}}
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.card-head{padding:12px 16px;background:#f9fafb;border-bottom:1px solid var(--border);font-size:11px;color:var(--text2);letter-spacing:.5px;font-weight:600;display:flex;justify-content:space-between;align-items:center}
+.card-head.admin{background:#fffbeb;border-bottom-color:#fde68a}
+.card-body{padding:16px}
+.kpi{background:var(--bg1);border:1px solid var(--border);border-radius:10px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+.kpi-val{font-size:26px;font-weight:700;margin-top:6px;line-height:1;color:var(--text)}
+.kpi-lbl{font-size:10px;color:var(--text3);letter-spacing:.5px;font-weight:500}
+.kpi-sub{font-size:10px;color:var(--text3);margin-top:4px}
+.table{width:100%;border-collapse:collapse}
+.table th{font-size:10px;letter-spacing:.5px;text-transform:uppercase;color:var(--text3);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);background:#f9fafb;font-weight:600}
+.table td{font-size:12px;padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text)}
+.table tr:last-child td{border-bottom:none}
+.table tr:hover td{background:#f8fafc}
+.badge{display:inline-block;font-size:10px;padding:3px 8px;border-radius:4px;letter-spacing:.3px;font-weight:500}
+.b-green{background:#d1fae5;color:#065f46}
+.b-blue{background:#dbeafe;color:#1e40af}
+.b-orange{background:#fed7aa;color:#9a3412}
+.b-yellow{background:#fef3c7;color:#92400e}
+.b-gray{background:#f3f4f6;color:#6b7280}
+.b-red{background:#fee2e2;color:#991b1b}
+.b-admin{background:#fef3c7;color:#d97706}
+.form-group{margin-bottom:16px}
+.form-label{font-size:11px;color:var(--text2);letter-spacing:.3px;font-weight:600;display:block;margin-bottom:6px}
+.form-input{background:var(--bg1);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:8px 12px;font-family:inherit;font-size:13px;width:100%;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(26,86,219,.1)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.prog{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:6px}
+.prog-fill{height:100%;border-radius:3px;transition:width .4s}
+.spark{display:flex;align-items:flex-end;gap:2px;height:32px;margin-top:6px}
+.spark-bar{flex:1;border-radius:2px;min-height:2px;transition:height .3s}
+.bid-row{display:grid;grid-template-columns:60px 1fr 70px 70px 70px 60px;gap:6px;padding:8px 14px;border-bottom:1px solid var(--border);font-size:11px;align-items:center;animation:sl .3s ease}
+@keyframes sl{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
+.bid-head{font-size:9px;letter-spacing:.5px;color:var(--text3);font-weight:600;background:#f9fafb}
+#auth-screen{position:fixed;inset:0;background:linear-gradient(135deg,#1e3a8a 0%,#1a56db 50%,#0ea5e9 100%);display:flex;align-items:center;justify-content:center;z-index:1000}
+.auth-box{background:var(--bg1);border-radius:16px;padding:36px;width:380px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.auth-logo{text-align:center;margin-bottom:28px}
+.auth-title{font-size:20px;font-weight:700;color:var(--text);margin-bottom:4px}
+.auth-sub{font-size:10px;color:var(--text3);letter-spacing:2px}
+.auth-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.auth-tab{flex:1;background:none;border:none;padding:10px;font-family:inherit;font-size:11px;letter-spacing:.5px;cursor:pointer;color:var(--text3);transition:all .2s;font-weight:500}
+.auth-tab.on{background:var(--cyan);color:#fff}
+.auth-err{background:#fef2f2;border:1px solid #fecaca;color:#dc2626;font-size:11px;padding:10px 12px;border-radius:6px;margin-bottom:12px;display:none}
+.upgrade-banner{background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:10px;padding:16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.admin-badge{background:#fef3c7;border:1px solid #fde68a;color:#d97706;font-size:9px;padding:3px 8px;border-radius:12px;letter-spacing:1px;font-weight:600;margin-left:8px}
+</style>
+</head>
+<body>
+
+<div id="auth-screen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div style="width:44px;height:44px;background:linear-gradient(135deg,#00e5ff,#0030dd);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px">⚡</div>
+      <div class="auth-title">NEXUS DSP</div>
+      <div class="auth-sub">Programmatic Platform</div>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab on" onclick="authTab('login',this)">Login</button>
+      <button class="auth-tab" onclick="authTab('register',this)">Register</button>
+    </div>
+    <div id="auth-err" class="auth-err"></div>
+    <div id="login-form">
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="login-email" type="email" placeholder="you@company.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><div style="position:relative"><input class="form-input" id="login-pass" type="password" placeholder="••••••••" style="padding-right:40px"><button type="button" onclick="togglePwd('login-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px">👁</button></div></div>
+      <button class="btn btn-cyan" style="width:100%;padding:10px;font-size:10px" onclick="doLogin()">SIGN IN →</button>
+    </div>
+    <div id="register-form" style="display:none">
+      <div class="form-group"><label class="form-label">Full Name</label><input class="form-input" id="reg-name" type="text" placeholder="Your name"></div>
+      <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="reg-email" type="email" placeholder="you@company.com"></div>
+      <div class="form-group"><label class="form-label">Password</label><div style="position:relative"><input class="form-input" id="reg-pass" type="password" placeholder="Min 8 chars, uppercase, number, symbol" oninput="checkPwdStrength(this.value)" style="padding-right:40px"><button type="button" onclick="togglePwd('reg-pass',this)" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text3);font-size:14px">👁</button></div>
+      <div id="pwd-strength" style="margin-top:8px;display:none">
+        <div style="display:flex;gap:4px;margin-bottom:4px">
+          <div id="ps1" style="flex:1;height:4px;border-radius:2px;background:var(--border)"></div>
+          <div id="ps2" style="flex:1;height:4px;border-radius:2px;background:var(--border)"></div>
+          <div id="ps3" style="flex:1;height:4px;border-radius:2px;background:var(--border)"></div>
+          <div id="ps4" style="flex:1;height:4px;border-radius:2px;background:var(--border)"></div>
+        </div>
+        <div id="pwd-strength-label" style="font-size:10px;color:var(--text3)"></div>
+      </div>
+      </div>
+      <button class="btn btn-green" style="width:100%;padding:10px;font-size:10px" onclick="doRegister()">CREATE ACCOUNT →</button>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <div class="logo"><div class="logo-icon">⚡</div>NEXUS DSP<span id="admin-badge" class="admin-badge" style="display:none">ADMIN</span></div>
+  <button class="nav-link on" onclick="nav('dashboard',this)">📊 Dashboard</button>
+  <button class="nav-link" onclick="nav('campaigns',this)">📁 Campaigns</button>
+  <button class="nav-link" onclick="nav('live',this)">⚡ Live Bids</button>
+  <button class="nav-link" onclick="nav('reports',this)">📈 Reports</button>
+  <button class="nav-link" onclick="nav('creatives',this)">🖼 Creatives</button>
+  <button class="nav-link" onclick="nav('billing',this)">💳 Billing</button>
+  <button class="nav-link admin-link" id="admin-nav-btn" style="display:none" onclick="nav('admin',this)">🔧 Admin</button>
+  <div class="nav-right">
+    <div style="text-align:right"><div class="bal" id="nav-balance">$0.00</div><div class="bal-lbl">Balance</div></div>
+    <div style="font-size:11px;color:var(--text2);font-weight:500" id="nav-user">—</div>
+    <button class="btn btn-sm" style="border-color:var(--border);color:var(--text2)" onclick="doLogout()">Logout</button>
+  </div>
+</nav>
+
+<div id="app">
+
+<div id="dashboard" class="pnl on">
+  <div id="upgrade-banner" class="upgrade-banner" style="display:none">
+    <div>
+      <div style="font-size:11px;color:var(--text);font-weight:700">You're on the Free plan</div>
+      <div style="font-size:9px;color:var(--text3);margin-top:3px">Upgrade to create and run campaigns</div>
+    </div>
+    <button class="btn btn-cyan" onclick="nav('billing',document.querySelector('[onclick*=billing]'))">UPGRADE →</button>
+  </div>
+  <div class="grid4" style="margin-bottom:14px">
+    <div class="kpi" style="border-color:rgba(0,229,255,.18)"><div class="kpi-lbl">Total Spend</div><div class="kpi-val" style="color:var(--cyan)" id="kpi-spend">$0.00</div><div class="kpi-sub">All campaigns</div></div>
+    <div class="kpi" style="border-color:rgba(168,255,62,.18)"><div class="kpi-lbl">Impressions</div><div class="kpi-val" style="color:var(--green)" id="kpi-imps">0</div><div class="kpi-sub">Lifetime</div></div>
+    <div class="kpi" style="border-color:rgba(255,107,53,.18)"><div class="kpi-lbl">Clicks</div><div class="kpi-val" style="color:var(--orange)" id="kpi-clicks">0</div><div class="kpi-sub" id="kpi-ctr">CTR: 0.00%</div></div>
+    <div class="kpi" style="border-color:rgba(245,197,24,.18)"><div class="kpi-lbl">Conversions</div><div class="kpi-val" style="color:var(--yellow)" id="kpi-convs">0</div><div class="kpi-sub" id="kpi-cpa">CPA: $—</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head">Active Campaigns <button class="btn btn-cyan btn-sm" onclick="nav('campaigns',document.querySelector('[onclick*=campaigns]'))">+ New Campaign</button></div>
+    <div class="card-body" style="padding:0"><table class="table"><thead><tr><th>Name</th><th>Status</th><th>Spent / Budget</th><th>CPM Bid</th><th>Pacing</th></tr></thead><tbody id="dash-camp-body"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No campaigns yet</td></tr></tbody></table></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="card-head">Live Bid Activity</div><div id="dash-bids" style="max-height:180px;overflow-y:auto"><div style="padding:20px;text-align:center;color:var(--text3);font-size:10px">Waiting for bid events...</div></div></div>
+    <div class="card"><div class="card-head">Spend Trend (Simulated)</div><div class="card-body"><div class="spark" id="spend-spark"></div><div style="font-size:9px;color:var(--text3);margin-top:8px">Last 14 days</div></div></div>
+  </div>
+</div>
+
+<div id="campaigns" class="pnl">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Your Campaigns</div>
+    <button class="btn btn-green" onclick="showNewCampaign()">+ CREATE CAMPAIGN</button>
+  </div>
+  <div id="new-camp-form" class="card" style="display:none">
+    <div class="card-head">New Campaign <button class="btn btn-sm" style="border-color:var(--text3);color:var(--text3)" onclick="document.getElementById('new-camp-form').style.display='none'">CANCEL</button></div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Campaign Name</label><input class="form-input" id="nc-name" placeholder="Summer Retargeting 2025"></div>
+        <div class="form-group"><label class="form-label">Total Budget ($)</label><input class="form-input" id="nc-budget" type="number" placeholder="500"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">CPM Bid ($)</label><input class="form-input" id="nc-cpm" type="number" step="0.01" placeholder="3.50"></div>
+        <div class="form-group"><label class="form-label">Daily Budget ($)</label><input class="form-input" id="nc-daily" type="number" placeholder="50"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Target Geos</label><select class="form-input" id="nc-geo" multiple style="height:80px"><option value="US" selected>United States</option><option value="CA">Canada</option><option value="GB">United Kingdom</option><option value="AU">Australia</option><option value="DE">Germany</option><option value="FR">France</option></select></div>
+        <div class="form-group"><label class="form-label">Target Devices</label><select class="form-input" id="nc-device" multiple style="height:80px"><option value="mobile" selected>Mobile</option><option value="desktop" selected>Desktop</option><option value="tablet">Tablet</option><option value="ctv">CTV</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Frequency Cap (per user/day)</label><input class="form-input" id="nc-freq" type="number" value="5"></div>
+      <button class="btn btn-green" onclick="createCampaign()" style="padding:8px 20px">CREATE CAMPAIGN →</button>
+    </div>
+  </div>
+  <div class="card" style="padding:0"><table class="table"><thead><tr><th>Name</th><th>Status</th><th>Spent</th><th>Budget</th><th>CPM</th><th>Imps</th><th>CTR</th><th>Actions</th></tr></thead><tbody id="camp-table-body"><tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">No campaigns yet.</td></tr></tbody></table></div>
+</div>
+
+<div id="live" class="pnl">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Live Bid Stream</div>
+    <div style="display:flex;gap:8px;align-items:center"><span style="font-size:9px;color:var(--text3)" id="bid-count">0 bids captured</span><button class="btn btn-sm btn-cyan" onclick="clearBids()">CLEAR</button></div>
+  </div>
+  <div class="card" style="padding:0">
+    <div class="bid-row bid-head"><span>ID</span><span>Campaign</span><span>Exchange</span><span>Geo</span><span>CPM</span><span>Result</span></div>
+    <div id="bid-stream" style="max-height:500px;overflow-y:auto"></div>
+  </div>
+</div>
+
+<div id="reports" class="pnl">
+  <div class="grid4" style="margin-bottom:14px">
+    <div class="kpi"><div class="kpi-lbl">eCPM</div><div class="kpi-val" style="color:var(--cyan)" id="r-ecpm">$0.00</div></div>
+    <div class="kpi"><div class="kpi-lbl">eCPC</div><div class="kpi-val" style="color:var(--orange)" id="r-ecpc">$0.00</div></div>
+    <div class="kpi"><div class="kpi-lbl">eCPA</div><div class="kpi-val" style="color:var(--yellow)" id="r-ecpa">$0.00</div></div>
+    <div class="kpi"><div class="kpi-lbl">Win Rate</div><div class="kpi-val" style="color:var(--green)" id="r-winrate">0%</div></div>
+  </div>
+  <div class="card"><div class="card-head">Performance by Device</div><div class="card-body" id="r-device-breakdown"><div style="color:var(--text3);font-size:10px">No data yet.</div></div></div>
+  <div class="card"><div class="card-head">Performance by Geo</div><div class="card-body" id="r-geo-breakdown"><div style="color:var(--text3);font-size:10px">No data yet.</div></div></div>
+</div>
+
+<div id="creatives" class="pnl">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+    <div style="font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase">Creative Assets</div>
+    <button class="btn btn-cyan" onclick="document.getElementById('creative-upload').style.display='block'">+ UPLOAD CREATIVE</button>
+  </div>
+  <div id="creative-upload" class="card" style="display:none">
+    <div class="card-head">Upload Creative</div>
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Name</label><input class="form-input" id="cr-name" placeholder="Banner 300x250"></div>
+        <div class="form-group"><label class="form-label">Type</label><select class="form-input" id="cr-type"><option value="image">Image</option><option value="html">HTML</option><option value="iframe">iFrame</option></select></div>
+      </div>
+      <div class="form-group"><label class="form-label">Image / CDN URL</label><input class="form-input" id="cr-url" placeholder="https://cdn.your-domain.com/banner.jpg"></div>
+      <div class="form-group"><label class="form-label">Click URL</label><input class="form-input" id="cr-click" placeholder="https://your-advertiser.com"></div>
+      <div class="form-row">
+        <div class="form-group"><label class="form-label">Width (px)</label><input class="form-input" id="cr-w" type="number" value="300"></div>
+        <div class="form-group"><label class="form-label">Height (px)</label><input class="form-input" id="cr-h" type="number" value="250"></div>
+      </div>
+      <button class="btn btn-cyan" onclick="saveCreative()">SAVE CREATIVE</button>
+    </div>
+  </div>
+  <div class="card" style="padding:0"><table class="table"><thead><tr><th>Name</th><th>Type</th><th>Size</th><th>Status</th><th>Click URL</th></tr></thead><tbody id="creatives-body"><tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No creatives yet.</td></tr></tbody></table></div>
+</div>
+
+<div id="billing" class="pnl">
+  <div class="grid3" style="margin-bottom:14px">
+    <div class="kpi" style="border-color:rgba(168,255,62,.2)"><div class="kpi-lbl">Current Balance</div><div class="kpi-val" style="color:var(--green)" id="bill-balance">$0.00</div><div class="kpi-sub">Available for campaigns</div></div>
+    <div class="kpi"><div class="kpi-lbl">Current Plan</div><div class="kpi-val" style="color:var(--cyan);font-size:18px;text-transform:uppercase" id="bill-plan">Free</div><div class="kpi-sub">Upgrade for more features</div></div>
+    <div class="kpi"><div class="kpi-lbl">Total Spent (lifetime)</div><div class="kpi-val" style="color:var(--orange)" id="bill-spent">$0.00</div><div class="kpi-sub">Across all campaigns</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head">Top Up Balance</div>
+    <div class="card-body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <button class="btn btn-cyan" onclick="topUp(5000)">$50</button>
+        <button class="btn btn-cyan" onclick="topUp(10000)">$100</button>
+        <button class="btn btn-cyan" onclick="topUp(25000)">$250</button>
+        <button class="btn btn-cyan" onclick="topUp(50000)">$500</button>
+        <button class="btn btn-cyan" onclick="topUp(100000)">$1,000</button>
+      </div>
+      <div style="font-size:9px;color:var(--text3);line-height:1.8">Payments processed securely via Stripe. Minimum top-up: $10.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head">Subscription Plans</div>
+    <div class="card-body">
+      <div class="grid3">
+        <div style="background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:8px">Starter</div>
+          <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px">$799<span style="font-size:10px;color:var(--text3)">/mo</span></div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:1.8">Up to $5k/mo ad spend<br>8 SSP connections<br>AI bidding & optimization<br>Weekly reports</div>
+          <button class="btn btn-cyan" style="width:100%" onclick="subscribe('starter')">SELECT PLAN</button>
+        </div>
+        <div style="background:var(--bg1);border:1px solid rgba(168,255,62,.3);border-radius:8px;padding:16px;position:relative">
+          <div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--green);color:#ffffff;font-size:7px;padding:2px 8px;border-radius:10px;letter-spacing:2px;font-weight:700">POPULAR</div>
+          <div style="font-size:13px;font-weight:700;color:var(--green);margin-bottom:8px">Growth</div>
+          <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px">$1,499<span style="font-size:10px;color:var(--text3)">/mo</span></div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:1.8">Up to $20k/mo ad spend<br>All Starter features<br>Advanced targeting<br>Daily reports + alerts</div>
+          <button class="btn btn-green" style="width:100%" onclick="subscribe('growth')">SELECT PLAN</button>
+        </div>
+        <div style="background:var(--bg1);border:1px solid rgba(214,123,255,.3);border-radius:8px;padding:16px">
+          <div style="font-size:13px;font-weight:700;color:var(--purple);margin-bottom:8px">Scale</div>
+          <div style="font-size:22px;font-weight:800;color:var(--text);margin-bottom:4px">$2,999<span style="font-size:10px;color:var(--text3)">/mo</span></div>
+          <div style="font-size:9px;color:var(--text3);margin-bottom:14px;line-height:1.8">Up to $100k/mo ad spend<br>All Growth features<br>White-label option<br>Dedicated support</div>
+          <button class="btn" style="border-color:var(--purple);color:var(--purple);width:100%" onclick="subscribe('scale')">SELECT PLAN</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ ADMIN PANEL ══ -->
+<div id="admin" class="pnl">
+  <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+    <div style="font-size:13px;font-weight:800;color:#ff9500;letter-spacing:2px;text-transform:uppercase">Admin Panel</div>
+    <span class="badge b-admin">RESTRICTED ACCESS</span>
+  </div>
+  <div class="grid5" style="margin-bottom:14px">
+    <div class="kpi" style="border-color:rgba(255,149,0,.2)"><div class="kpi-lbl">Total Customers</div><div class="kpi-val" style="color:#ff9500" id="a-total-customers">—</div><div class="kpi-sub">Registered accounts</div></div>
+    <div class="kpi" style="border-color:rgba(168,255,62,.2)"><div class="kpi-lbl">Paid Customers</div><div class="kpi-val" style="color:var(--green)" id="a-paid-customers">—</div><div class="kpi-sub">Active subscriptions</div></div>
+    <div class="kpi" style="border-color:rgba(0,229,255,.2)"><div class="kpi-lbl">Platform Spend</div><div class="kpi-val" style="color:var(--cyan)" id="a-total-spend">—</div><div class="kpi-sub">All customers total</div></div>
+    <div class="kpi"><div class="kpi-lbl">Total Campaigns</div><div class="kpi-val" style="color:var(--text)" id="a-total-campaigns">—</div><div class="kpi-sub">All customers</div></div>
+    <div class="kpi" style="border-color:rgba(168,255,62,.2)"><div class="kpi-lbl">Active Campaigns</div><div class="kpi-val" style="color:var(--green)" id="a-active-campaigns">—</div><div class="kpi-sub">Currently running</div></div>
+  </div>
+  <div class="card">
+    <div class="card-head admin">Customer Management <button class="btn btn-orange btn-sm" onclick="loadAdminData()">↻ REFRESH</button></div>
+    <div class="card-body" style="padding:0">
+      <table class="table">
+        <thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Balance</th><th>Campaigns</th><th>Spent</th><th>Joined</th><th>Actions</th></tr></thead>
+        <tbody id="admin-customers-body"><tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head admin">All Campaigns</div>
+    <div class="card-body" style="padding:0">
+      <table class="table">
+        <thead><tr><th>Campaign</th><th>Customer</th><th>Status</th><th>Spent</th><th>Budget</th><th>Impressions</th></tr></thead>
+        <tbody id="admin-campaigns-body"><tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+var API=(window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1')?'http://localhost:3001':'https://nexus-dsp-production.up.railway.app';
+var token=localStorage.getItem('nexus_token');
+var user=null,campaigns=[],bidsWon=0,bidsLost=0,simInterval=null;
+
+window.onload=function(){if(token)loadUser();renderSparkline();};
+
+function loadUser(){apiFetch('/api/auth/me').then(function(u){user=u;if(u.error){doLogout();return;}showApp();}).catch(doLogout);}
+
+function showApp(){
+  document.getElementById('auth-screen').style.display='none';
+  document.getElementById('nav-user').textContent=user.email;
+  document.getElementById('nav-balance').textContent='$'+parseFloat(user.balance||0).toFixed(2);
+  document.getElementById('bill-balance').textContent='$'+parseFloat(user.balance||0).toFixed(2);
+  document.getElementById('bill-plan').textContent=user.plan||'free';
+  if(user.role==='admin'){
+    document.getElementById('admin-nav-btn').style.display='flex';
+    document.getElementById('admin-badge').style.display='inline-block';
+  }
+  if(user.role==='customer'&&user.plan==='free'){
+    document.getElementById('upgrade-banner').style.display='flex';
+  }
+  loadCampaigns();loadSummary();startSimBids();
+}
+
+function togglePwd(id, btn){
+  var input = document.getElementById(id);
+  if(input.type === 'password'){
+    input.type = 'text';
+    btn.textContent = '🙈';
+  } else {
+    input.type = 'password';
+    btn.textContent = '👁';
+  }
+}
+function checkPwdStrength(pwd){
+  var el=document.getElementById('pwd-strength');
+  var lbl=document.getElementById('pwd-strength-label');
+  if(!pwd){el.style.display='none';return;}
+  el.style.display='block';
+  var score=0;
+  if(pwd.length>=8)score++;
+  if(/[A-Z]/.test(pwd))score++;
+  if(/[0-9]/.test(pwd))score++;
+  if(/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd))score++;
+  var colors=['#dc2626','#ea580c','#d97706','#059669'];
+  var labels=['Weak','Fair','Good','Strong'];
+  for(var i=1;i<=4;i++){
+    var bar=document.getElementById('ps'+i);
+    bar.style.background=i<=score?colors[score-1]:'var(--border)';
+  }
+  lbl.textContent=labels[score-1]||'Too weak';
+  lbl.style.color=colors[score-1]||'#dc2626';
+}
+function authTab(tab,btn){
+  document.querySelectorAll('.auth-tab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('login-form').style.display=tab==='login'?'block':'none';
+  document.getElementById('register-form').style.display=tab==='register'?'block':'none';
+  document.getElementById('auth-err').style.display='none';
+}
+
+function doLogin(){
+  var email=document.getElementById('login-email').value;
+  var pass=document.getElementById('login-pass').value;
+  apiFetch('/api/auth/login','POST',{email,password:pass}).then(function(r){
+    if(r.error){showAuthErr(r.error);return;}
+    token=r.token;user=r.user;localStorage.setItem('nexus_token',token);showApp();
+  });
+}
+
+function doRegister(){
+  var name=document.getElementById('reg-name').value;
+  var email=document.getElementById('reg-email').value;
+  var pass=document.getElementById('reg-pass').value;
+  apiFetch('/api/auth/register','POST',{name,email,password:pass}).then(function(r){
+    if(r.error){showAuthErr(r.error);return;}
+    token=r.token;user=r.user;localStorage.setItem('nexus_token',token);showApp();
+  });
+}
+
+function doLogout(){
+  token=null;user=null;campaigns=[];
+  localStorage.removeItem('nexus_token');
+  document.getElementById('auth-screen').style.display='flex';
+  if(simInterval)clearInterval(simInterval);
+}
+
+function showAuthErr(msg){var el=document.getElementById('auth-err');el.textContent=msg;el.style.display='block';}
+
+function apiFetch(path,method,body){
+  if(method===void 0)method='GET';
+  var opts={method:method,headers:{'Content-Type':'application/json'}};
+  if(token)opts.headers['Authorization']='Bearer '+token;
+  if(body)opts.body=JSON.stringify(body);
+  return fetch(API+path,opts).then(function(r){return r.json();}).catch(function(e){return{error:e.message};});
+}
+
+function loadCampaigns(){apiFetch('/api/campaigns').then(function(data){if(Array.isArray(data)){campaigns=data;renderCampaigns();}});}
+
+function renderCampaigns(){
+  var body=document.getElementById('camp-table-body');
+  var dashBody=document.getElementById('dash-camp-body');
+  if(!campaigns.length){
+    body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">No campaigns yet</td></tr>';
+    dashBody.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No campaigns</td></tr>';
+    return;
+  }
+  var html='',dashHtml='';
+  campaigns.forEach(function(c){
+    var pct=Math.min(100,(c.spent/c.budget*100)).toFixed(0);
+    var ctr=c.impressions>0?(c.clicks/c.impressions*100).toFixed(2):'0.00';
+    var sb=c.status==='active'?'<span class="badge b-green">active</span>':c.status==='paused'?'<span class="badge b-yellow">paused</span>':'<span class="badge b-gray">'+c.status+'</span>';
+    html+='<tr><td style="color:var(--text)">'+c.name+'</td><td>'+sb+'</td><td>$'+parseFloat(c.spent||0).toFixed(2)+'</td><td>$'+parseFloat(c.budget).toFixed(2)+'</td><td style="color:var(--cyan)">$'+parseFloat(c.cpm_bid).toFixed(2)+'</td><td>'+(c.impressions||0).toLocaleString()+'</td><td>'+ctr+'%</td><td><button class="btn btn-sm btn-cyan" onclick="toggleCampaign(\''+c.id+'\',\''+c.status+'\')">'+( c.status==='active'?'PAUSE':'RESUME')+'</button></td></tr>';
+    dashHtml+='<tr><td style="color:var(--text)">'+c.name+'</td><td>'+sb+'</td><td><div>$'+parseFloat(c.spent||0).toFixed(2)+' / $'+parseFloat(c.budget).toFixed(2)+'</div><div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:var(--cyan)"></div></div></td><td style="color:var(--cyan)">$'+parseFloat(c.cpm_bid).toFixed(2)+'</td><td><div class="prog"><div class="prog-fill" style="width:'+pct+'%;background:var(--green)"></div></div></td></tr>';
+  });
+  body.innerHTML=html;dashBody.innerHTML=dashHtml;
+}
+
+function showNewCampaign(){
+  if(user.plan==='free'&&user.role!=='admin'){alert('Please upgrade your plan to create campaigns.');nav('billing',document.querySelector('[onclick*=billing]'));return;}
+  var f=document.getElementById('new-camp-form');f.style.display=f.style.display==='none'?'block':'none';
+}
+
+function createCampaign(){
+  var name=document.getElementById('nc-name').value;
+  var budget=parseFloat(document.getElementById('nc-budget').value);
+  var cpm=parseFloat(document.getElementById('nc-cpm').value);
+  var daily=parseFloat(document.getElementById('nc-daily').value)||budget/30;
+  var freq=parseInt(document.getElementById('nc-freq').value)||5;
+  var geos=Array.from(document.getElementById('nc-geo').selectedOptions).map(function(o){return o.value;});
+  var devs=Array.from(document.getElementById('nc-device').selectedOptions).map(function(o){return o.value;});
+  if(!name||!budget||!cpm){alert('Please fill in name, budget, and CPM bid');return;}
+  apiFetch('/api/campaigns','POST',{name,budget,cpm_bid:cpm,daily_budget:daily,targeting:{geos,devices:devs,freq_cap:freq}}).then(function(r){
+    if(r.error){alert(r.error);return;}
+    campaigns.push(r);renderCampaigns();document.getElementById('new-camp-form').style.display='none';
+  });
+}
+
+function toggleCampaign(id,status){
+  apiFetch('/api/campaigns/'+id,'PATCH',{status:status==='active'?'paused':'active'}).then(function(r){
+    if(!r.error){campaigns=campaigns.map(function(c){return c.id===id?r:c;});renderCampaigns();}
+  });
+}
+
+function loadSummary(){apiFetch('/api/reports/summary').then(function(r){if(!r.error)updateKPIs(r);});}
+
+function updateKPIs(d){
+  document.getElementById('kpi-spend').textContent='$'+parseFloat(d.spend||0).toFixed(2);
+  document.getElementById('kpi-imps').textContent=parseInt(d.impressions||0).toLocaleString();
+  document.getElementById('kpi-clicks').textContent=parseInt(d.clicks||0).toLocaleString();
+  document.getElementById('kpi-convs').textContent=parseInt(d.conversions||0).toLocaleString();
+  document.getElementById('kpi-ctr').textContent='CTR: '+(d.impressions>0?(d.clicks/d.impressions*100).toFixed(2):'0.00')+'%';
+  document.getElementById('kpi-cpa').textContent='CPA: '+(d.conversions>0?'$'+(d.spend/d.conversions).toFixed(2):'$—');
+  var total=parseInt(d.bids_won||0)+parseInt(d.bids_lost||0);
+  document.getElementById('r-winrate').textContent=(total>0?(parseInt(d.bids_won||0)/total*100).toFixed(1):0)+'%';
+  document.getElementById('r-ecpm').textContent=d.impressions>0?'$'+(d.spend/d.impressions*1000).toFixed(2):'$0.00';
+  document.getElementById('r-ecpc').textContent=d.clicks>0?'$'+(d.spend/d.clicks).toFixed(2):'$0.00';
+  document.getElementById('r-ecpa').textContent=d.conversions>0?'$'+(d.spend/d.conversions).toFixed(2):'$0.00';
+}
+
+function loadAdminData(){
+  if(!user||user.role!=='admin')return;
+  apiFetch('/api/admin/stats').then(function(d){
+    if(d.error)return;
+    document.getElementById('a-total-customers').textContent=d.total_customers||0;
+    document.getElementById('a-paid-customers').textContent=d.paid_customers||0;
+    document.getElementById('a-total-spend').textContent='$'+parseFloat(d.total_spend||0).toFixed(2);
+    document.getElementById('a-total-campaigns').textContent=d.total_campaigns||0;
+    document.getElementById('a-active-campaigns').textContent=d.active_campaigns||0;
+  });
+  apiFetch('/api/admin/customers').then(function(data){
+    var body=document.getElementById('admin-customers-body');
+    if(!Array.isArray(data)||!data.length){body.innerHTML='<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:24px">No customers yet</td></tr>';return;}
+    body.innerHTML=data.map(function(c){
+      var pb=c.plan==='free'?'<span class="badge b-gray">free</span>':c.plan==='starter'?'<span class="badge b-blue">starter</span>':c.plan==='growth'?'<span class="badge b-green">growth</span>':'<span class="badge b-admin">scale</span>';
+      return '<tr><td style="color:var(--text)">'+c.name+'</td><td style="color:var(--text2)">'+c.email+'</td><td>'+pb+'</td><td style="color:var(--green)">$'+parseFloat(c.balance||0).toFixed(2)+'</td><td>'+c.campaign_count+'</td><td style="color:var(--cyan)">$'+parseFloat(c.total_spent||0).toFixed(2)+'</td><td style="color:var(--text3)">'+new Date(c.created_at).toLocaleDateString()+'</td>'
+        +'<td style="display:flex;gap:4px"><select class="form-input" style="padding:2px 4px;font-size:8px;width:80px" onchange="updateCustomerPlan(\''+c.id+'\',this.value)"><option value="free"'+(c.plan==='free'?' selected':'')+'>Free</option><option value="starter"'+(c.plan==='starter'?' selected':'')+'>Starter</option><option value="growth"'+(c.plan==='growth'?' selected':'')+'>Growth</option><option value="scale"'+(c.plan==='scale'?' selected':'')+'>Scale</option></select>'
+        +'<button class="btn btn-red btn-sm" onclick="deleteCustomer(\''+c.id+'\',\''+c.name+'\')">✕</button></td></tr>';
+    }).join('');
+  });
+  apiFetch('/api/admin/campaigns').then(function(data){
+    var body=document.getElementById('admin-campaigns-body');
+    if(!Array.isArray(data)||!data.length){body.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:24px">No campaigns yet</td></tr>';return;}
+    body.innerHTML=data.map(function(c){
+      var sb=c.status==='active'?'<span class="badge b-green">active</span>':c.status==='paused'?'<span class="badge b-yellow">paused</span>':'<span class="badge b-gray">'+c.status+'</span>';
+      return '<tr><td style="color:var(--text)">'+c.name+'</td><td style="color:var(--text2)">'+c.user_name+'</td><td>'+sb+'</td><td style="color:var(--orange)">$'+parseFloat(c.spent||0).toFixed(2)+'</td><td>$'+parseFloat(c.budget).toFixed(2)+'</td><td>'+(c.impressions||0).toLocaleString()+'</td></tr>';
+    }).join('');
+  });
+}
+
+function updateCustomerPlan(id,plan){
+  apiFetch('/api/admin/customers/'+id,'PATCH',{plan:plan}).then(function(r){if(r.error)alert(r.error);else loadAdminData();});
+}
+
+function deleteCustomer(id,name){
+  if(!confirm('Delete "'+name+'" and all their data? This cannot be undone.'))return;
+  apiFetch('/api/admin/customers/'+id,'DELETE').then(function(r){if(r.error)alert(r.error);else loadAdminData();});
+}
+
+var EXCHANGES=['PubMatic','Magnite','OpenX','Index','Xandr'];
+var GEOS=['US','US','US','CA','UK','AU','DE'];
+var bidCount=0;
+
+function startSimBids(){
+  if(simInterval)return;
+  simInterval=setInterval(function(){
+    if(!campaigns.length)return;
+    var camp=campaigns[Math.floor(Math.random()*campaigns.length)];
+    if(!camp||camp.status!=='active')return;
+    var won=Math.random()>0.4;
+    var cpm=parseFloat(camp.cpm_bid||3.5);
+    var bid={id:(++bidCount).toString().padStart(4,'0'),campaign:camp.name,exchange:EXCHANGES[Math.floor(Math.random()*EXCHANGES.length)],geo:GEOS[Math.floor(Math.random()*GEOS.length)],cpm:(cpm*(0.7+Math.random()*0.6)).toFixed(2),won:won,click:won&&Math.random()<0.025,conv:won&&Math.random()<0.008};
+    if(won)bidsWon++;else bidsLost++;
+    addBidRow(bid);
+    document.getElementById('bid-count').textContent=bidCount+' bids captured';
+  },700+Math.random()*500);
+}
+
+function addBidRow(b){
+  var row=document.createElement('div');row.className='bid-row';
+  var result=b.conv?'<span class="badge b-yellow">CONV</span>':b.click?'<span class="badge b-cyan">CLICK</span>':b.won?'<span class="badge b-green">WON</span>':'<span class="badge b-gray">LOST</span>';
+  row.innerHTML='<span style="color:var(--text3);font-family:monospace">'+b.id+'</span><span style="color:var(--text)">'+b.campaign+'</span><span style="color:var(--text2)">'+b.exchange+'</span><span style="color:var(--text3)">'+b.geo+'</span><span style="color:var(--text)">'+(b.won?'$'+b.cpm:'—')+'</span>'+result;
+  var stream=document.getElementById('bid-stream');stream.insertBefore(row,stream.firstChild);
+  while(stream.children.length>80)stream.removeChild(stream.lastChild);
+  var db=document.getElementById('dash-bids');db.insertBefore(row.cloneNode(true),db.firstChild);
+  while(db.children.length>12)db.removeChild(db.lastChild);
+}
+
+function clearBids(){document.getElementById('bid-stream').innerHTML='';bidCount=0;document.getElementById('bid-count').textContent='0 bids captured';}
+
+var creativesList=[];
+function saveCreative(){
+  var cr={id:'cr'+Date.now(),name:document.getElementById('cr-name').value,type:document.getElementById('cr-type').value,image_url:document.getElementById('cr-url').value,click_url:document.getElementById('cr-click').value,w:document.getElementById('cr-w').value,h:document.getElementById('cr-h').value,status:'approved'};
+  if(!cr.name){alert('Please enter a creative name');return;}
+  creativesList.push(cr);renderCreatives();document.getElementById('creative-upload').style.display='none';
+}
+function renderCreatives(){
+  var body=document.getElementById('creatives-body');
+  if(!creativesList.length){body.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:24px">No creatives yet</td></tr>';return;}
+  body.innerHTML=creativesList.map(function(c){return'<tr><td style="color:var(--text)">'+c.name+'</td><td><span class="badge b-blue">'+c.type+'</span></td><td>'+c.w+'x'+c.h+'</td><td><span class="badge b-green">'+c.status+'</span></td><td style="color:var(--text2)">'+c.click_url+'</td></tr>';}).join('');
+}
+
+function topUp(cents){apiFetch('/api/billing/topup','POST',{amount_cents:cents}).then(function(r){if(r.error)alert(r.error);else alert('Stripe checkout initiated.');});}
+function subscribe(plan){apiFetch('/api/billing/subscription','POST',{plan:plan}).then(function(r){if(r.url)window.location.href=r.url;else alert(r.error||'Error');});}
+
+function nav(id,btn){
+  document.querySelectorAll('.pnl').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('.nav-link').forEach(function(b){b.classList.remove('on');});
+  document.getElementById(id).classList.add('on');
+  if(btn)btn.classList.add('on');
+  if(id==='admin')loadAdminData();
+}
+
+function renderSparkline(){
+  var data=[12,18,15,22,28,24,31,27,35,33,40,38,45,44];
+  var max=Math.max.apply(null,data);
+  document.getElementById('spend-spark').innerHTML=data.map(function(v){var h=Math.round((v/max)*100);return'<div class="spark-bar" style="height:'+h+'%;background:rgba(0,229,255,'+(0.3+v/max*0.7)+')"></div>';}).join('');
+}
+</script>
+</body>
+</html>
