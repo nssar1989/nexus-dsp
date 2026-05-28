@@ -1,0 +1,9 @@
+# ads.txt file for hmsmgroup.com
+# Last updated: May 2026
+# HMSM Group Inc. - NEXUS DSP
+
+# Authorized Digital Sellers
+# Format: <SSP Domain>, <Publisher/Seller Account ID>, <Relationship>, <Certification Authority ID>
+
+# Placeholder - will be updated with partner entries upon integration
+placeholder.example.com, placeholder, DIRECT
