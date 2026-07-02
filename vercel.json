@@ -1,0 +1,15 @@
+{
+  "routes": [
+    {
+      "src": "/sellers.json",
+      "dest": "/sellers.json",
+      "headers": {
+        "Content-Type": "application/json"
+      }
+    },
+    {
+      "src": "/ads.txt",
+      "dest": "/ads.txt"
+    }
+  ]
+}
